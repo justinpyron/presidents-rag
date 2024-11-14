@@ -56,6 +56,7 @@ def get_section_indices(pagetitle: str) -> str:
 
 
 def process_soup(soup: BeautifulSoup) -> BeautifulSoup:
+    """Remove unwanted html elements"""
     for table in soup.find_all("table"):
         table.decompose()
     for infobox in soup.find_all("infobox"):
