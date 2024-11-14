@@ -55,7 +55,21 @@ def get_section_indices(pagetitle: str) -> str:
     return section_indices
 
 
-def process_raw_text(raw_text: str) -> str:
+def process_soup(soup: BeautifulSoup) -> BeautifulSoup:
+    for table in soup.find_all("table"):
+        table.decompose()
+    for infobox in soup.find_all("infobox"):
+        infobox.decompose()
+    for figcaption in soup.find_all("figcaption"):
+        figcaption.decompose()
+    for gallerytext in soup.find_all(class_="gallerytext"):
+        gallerytext.decompose()
+    for thumbcaption in soup.find_all(class_="thumbcaption"):
+        thumbcaption.decompose()
+    return soup
+
+
+def process_text(raw_text: str) -> str:
     lines = [
         line
         for line in raw_text.splitlines()
@@ -81,9 +95,8 @@ def get_text(
 
     See https://www.mediawiki.org/wiki/API:Parsing_wikitext
     """
-    section_bodies = list()
+    sections = list()
     for section_index in section_indices:
-        # Fetch raw response
         payload = {
             "action": "parse",
             "page": pagetitle,
@@ -94,11 +107,12 @@ def get_text(
             "format": "json",
         }
         response = requests.get(BASE_URL, params=payload).json()
-        soup = BeautifulSoup(response["parse"]["text"]["*"], features="lxml")
-        raw_text = soup.get_text()
-        clean_text = process_raw_text(raw_text)
-        section_bodies.append(clean_text)
-    full_article = "\n".join(section_bodies)
+        soup_raw = BeautifulSoup(response["parse"]["text"]["*"], features="lxml")
+        soup_clean = process_soup(soup_raw)
+        text_raw = soup_clean.get_text()
+        text_clean = process_text(text_raw)
+        sections.append(text_clean)
+    full_article = "\n".join(sections)
     return full_article
 
 
