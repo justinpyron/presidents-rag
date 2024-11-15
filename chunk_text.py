@@ -37,7 +37,7 @@ def chunk_single_file(
 
 
 def make_chunks() -> None:
-    files = sorted(os.listdir(TEXT_DIR_INPUT))[:2]
+    files = sorted(os.listdir(TEXT_DIR_INPUT))
     for file in files:
         chunks = chunk_single_file(
             text=read_text(file),
