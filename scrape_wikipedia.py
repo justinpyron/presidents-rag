@@ -135,7 +135,7 @@ def dump_to_txt(
 
 if __name__ == "__main__":
     people = sorted(list(set(PRESIDENTS + SECRETARIES_OF_STATE)))
-    for i, person in enumerate(people[:3]):
+    for i, person in enumerate(people):
         print(f"[{i+1:3}/{len(people)}] Scraping... {person}")
         text = scrape_wiki_article(person)
         dump_to_txt(text, person)
