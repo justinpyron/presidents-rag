@@ -10,7 +10,6 @@ DESTINATION_FOLDER = "text"
 def get_pagetitle(query: str) -> str:
     """
     Return pagetitle of article that best matches a given query string
-
     See https://www.mediawiki.org/wiki/API:Opensearch
     """
     payload = {
@@ -28,7 +27,6 @@ def get_pagetitle(query: str) -> str:
 def get_section_indices(pagetitle: str) -> str:
     """
     Return sections of article with a given pagetitle
-
     See https://www.mediawiki.org/wiki/API:Parsing_wikitext
     """
     disallowed_section_titles = [
@@ -93,7 +91,6 @@ def get_text(
 ) -> str:
     """
     Return text from given section indices of article with given pagetitle.
-
     See https://www.mediawiki.org/wiki/API:Parsing_wikitext
     """
     sections = list()
