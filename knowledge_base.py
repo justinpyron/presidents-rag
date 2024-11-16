@@ -25,12 +25,14 @@ class KnowledgeBase:
         self,
         query: str,
         top_k: int,
-    ) -> tuple[list[str], list[str], np.array, np.array]:
+    ) -> dict:
         query_embedding = self.embed_query(query)
-        distance = cdist(self.embeddings, query_embedding, metric="cosine")[:, 0]
-        top_index = np.argsort(distance)[:top_k]
-        top_filenames = [self.filenames[i] for i in top_index]
-        top_text = [self.text[i] for i in top_index]
-        top_embeddings = self.embeddings[top_index]
-        top_cosine_similarities = 1 - distance[top_index]
-        return top_filenames, top_text, top_embeddings, top_cosine_similarities
+        similarity = 1 - cdist(self.embeddings, query_embedding, metric="cosine")[:, 0]
+        idx_top = np.flip(np.argsort(similarity))[:top_k]
+        respose = {
+            "filename": [self.filenames[i] for i in idx_top],
+            "text": [self.text[i] for i in idx_top],
+            "embedding": self.embeddings[idx_top],
+            "cosine_similarity": similarity[idx_top],
+        }
+        return respose
