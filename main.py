@@ -52,4 +52,4 @@ class PresidentsRAG:
         knowledge = self.knowledge_base.fetch_similar_documents(query, top_k)
         prompt = self.prompt_template.render(query=query, documents=knowledge["text"])
         answer = self.ping_openai(prompt)
-        return answer
+        return knowledge, answer
