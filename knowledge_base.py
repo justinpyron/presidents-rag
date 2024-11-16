@@ -21,14 +21,14 @@ class KnowledgeBase:
             query_embedding = self.sentence_transformer.encode([query])
         return query_embedding
 
-    def get_top_k(
+    def fetch_similar_documents(
         self,
         query: str,
-        k: int,
+        top_k: int,
     ) -> tuple[list[str], list[str], np.array, np.array]:
         query_embedding = self.embed_query(query)
         distance = cdist(self.embeddings, query_embedding, metric="cosine")[:, 0]
-        top_index = np.argsort(distance)[:k]
+        top_index = np.argsort(distance)[:top_k]
         top_filenames = [self.filenames[i] for i in top_index]
         top_text = [self.text[i] for i in top_index]
         top_embeddings = self.embeddings[top_index]
