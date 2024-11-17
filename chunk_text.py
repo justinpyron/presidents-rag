@@ -1,7 +1,5 @@
 import os
 
-import numpy as np
-
 TEXT_DIR_INPUT = "text"
 TEXT_DIR_OUTPUT = "chunks"
 CHUNK_LENGTH = 1100
@@ -45,7 +43,7 @@ def make_chunks() -> None:
             chunk_overlap=CHUNK_OVERLAP,
         )
         for i, chunk in enumerate(chunks):
-            write_text(chunk, filename=f"{file}__chunk_{i:03}")
+            write_text(chunk, filename=f"{file.split('.')[0]}__chunk_{i:03}")
 
 
 if __name__ == "__main__":
