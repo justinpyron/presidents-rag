@@ -4,7 +4,6 @@ version = "0.1.0"
 description = ""
 authors = ["Justin Pyron <justinpyron@gmail.com>"]
 readme = "README.md"
-packages = [{include = "presidents_rag"}]
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -22,7 +21,6 @@ streamlit = "^1.40.1"
 beautifulsoup4 = "^4.12.3"
 lxml = "^5.3.0"
 pre-commit = "^4.0.1"
-
 
 [build-system]
 requires = ["poetry-core"]
