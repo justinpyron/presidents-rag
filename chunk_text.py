@@ -43,7 +43,7 @@ def make_chunks() -> None:
             chunk_overlap=CHUNK_OVERLAP,
         )
         for i, chunk in enumerate(chunks):
-            write_text(chunk, filename=f"{file.strip('.txt')}__chunk_{i:03}")
+            write_text(chunk, filename=f"{file.split('.')[0]}__chunk_{i:03}")
 
 
 if __name__ == "__main__":
