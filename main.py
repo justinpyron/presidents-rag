@@ -18,7 +18,7 @@ DOCUMENT {{ loop.index }}
 {% endfor %}
 
 INSTRUCTIONS:
-Answer the QUESTION above using the list of documents in DOCUMENTS. Your answer must only be based on the items in DOCUMENTS. It is imperative that your response is grounded in documents in the DOCUMENTS section. If DOCUMENTS does not contain the answer to QUESTION, return "The answer to your question could not be found in the documents provided.".
+Answer the QUESTION above using the list of documents in DOCUMENTS. Your answer must only be based on the items in DOCUMENTS. It is imperative that your answer be grounded in DOCUMENTS.
 """
 
 
