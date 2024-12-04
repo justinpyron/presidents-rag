@@ -63,7 +63,7 @@ with st.expander("How it works"):
     st.markdown(how_it_works)
 query = st.text_area("Ask a question", "")
 if st.button("Submit", type="primary", use_container_width=True):
-    knowledge, answer = rag.ask(query)
+    knowledge, answer = rag.ask(query, top_k=10)
     st.write(answer)
     with st.expander("Sources"):
         sources = build_sources_string(
