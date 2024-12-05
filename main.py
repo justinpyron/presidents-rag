@@ -18,7 +18,7 @@ DOCUMENT {{ loop.index }}
 {% endfor %}
 
 INSTRUCTIONS:
-Answer the QUESTION above using the list of documents in DOCUMENTS. Your answer must only be based on the items in DOCUMENTS. It is imperative that your answer be grounded in DOCUMENTS.
+Answer the QUESTION above using the list of documents in DOCUMENTS. Your answer must only be based on the items in DOCUMENTS. If you struggle to find an explicit answer, attempt a best guest by summarizing DOCUMENTS.
 """
 
 
