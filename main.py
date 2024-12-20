@@ -10,17 +10,16 @@ from knowledge_base import KnowledgeBase
 API_KEY = os.environ["OPENAI_API_KEY__PRESIDENTS_RAG"]
 OPENAI_MODEL = "gpt-4o-mini"
 PROMPT_SKELETON = """
-QUESTION:
-{{ query }}
+You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use 3 sentences maximum and keep the answer concise.
+Question: {{ query }}
 
-DOCUMENTS:
+Context:
 {% for doc in documents %}
 DOCUMENT {{ loop.index }}
 {{ doc }}
 {% endfor %}
 
-INSTRUCTIONS:
-Answer the QUESTION above using the list of documents in DOCUMENTS. Your answer must only be based on the items in DOCUMENTS. If you struggle to find an explicit answer, attempt a best guest by summarizing DOCUMENTS.
+Answer:
 """
 
 
