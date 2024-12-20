@@ -46,8 +46,11 @@ with st.expander("How it works"):
     st.markdown(how_it_works)
 query = st.text_area("Ask a question", "")
 if st.button("Submit", type="primary", use_container_width=True):
-    answer, documents = rag.ask(query, top_k=10)
+    answer, ids, documents = rag.ask(query)
     st.write(answer)
     with st.expander("Sources"):
-        pretty_docs = [f"### Document {i+1}\n{doc}" for i, doc in enumerate(documents)]
+        pretty_docs = [
+            f"### Document {i+1}\n##### `{id[:id.find('.txt')+4]}`\n{doc}"
+            for i, (id, doc) in enumerate(zip(ids, documents))
+        ]
         st.markdown("\n\n".join(pretty_docs))
