@@ -3,6 +3,7 @@ import os
 import chromadb
 import jinja2
 from openai import OpenAI
+from sentence_transformers import CrossEncoder
 
 from create_vector_store import VECTOR_STORE_NAME, VECTOR_STORE_PATH
 from knowledge_base import KnowledgeBase
@@ -46,13 +47,37 @@ class PresidentsRAG:
         )
         return completion.choices[0].message.content
 
+    def retrieve_documents(
+        self,
+        query: str,
+        top_k: int,
+    ) -> list[str]:
+        result = self.vector_store.query(query_texts=query, n_results=top_k)
+        documents = result["documents"][0]
+        ids = result["ids"][0]
+        return ids, documents
+
+    def rerank(
+        self,
+        query: str,
+        ids: list[str],
+        documents: list[str],
+        top_k: int,
+    ) -> list[str]:
+        model = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
+        ranks = model.rank(query, documents)
+        ranked_ids = [ids[row["corpus_id"]] for row in ranks]
+        ranked_docs = [documents[row["corpus_id"]] for row in ranks]
+        return ranked_ids[:top_k], ranked_docs[:top_k]
+
     def ask(
         self,
         query: str,
-        top_k: int = 5,
+        top_k_retrieval: int = 100,
+        top_k_rerank: int = 20,
     ) -> tuple[dict, str]:
-        result = self.vector_store.query(query_texts=query, n_results=top_k)
-        documents = result["documents"][0]
-        prompt = self.prompt_template.render(query=query, documents=documents)
+        ids, docs = self.retrieve_documents(query, top_k_retrieval)
+        top_ids, top_docs = self.rerank(query, ids, docs, top_k_rerank)
+        prompt = self.prompt_template.render(query=query, documents=top_docs)
         answer = self.ping_openai(prompt)
-        return answer, documents
+        return answer, top_ids, top_docs
