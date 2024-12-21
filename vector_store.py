@@ -1,9 +1,8 @@
 import numpy as np
 import torch
+from create_artifacts import MODEL_NAME, read_pickle
 from scipy.spatial.distance import cdist
 from sentence_transformers import SentenceTransformer
-
-from create_artifacts import MODEL_NAME, read_pickle
 
 
 class KnowledgeBase:
