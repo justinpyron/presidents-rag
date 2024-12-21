@@ -4,16 +4,13 @@ Use Wikipedia knowledge base and Retrieval-Augmented Generation (RAG) to answer 
 # Project Organization
 ```
 ├── README.md                  <- Overview
-├── main.py                    <- Main RAG logic/backend
 ├── app.py                     <- Streamlit web app frontend
+├── backend.py                 <- RAG logic used in the app
 ├── people.py                  <- List of people to include in the knowledge base
 ├── scrape_wikipedia.py        <- Extract text from Wikipedia articles
-├── chunk_text.py              <- Split raw Wikipedia articles into smaller chunks
-├── knowledge_base.py          <- Class for interfacing with knowledge base of embedding vectors
-├── create_artifacts.py        <- Build the knowledge base by creating embedding vectors
-├── artifact_embeddings.npy    <- Knowledge base of embedding vectors
-├── artifact_text.pickle       <- Raw text of knowledge base elements
-├── artifact_filenames.pickle  <- Filenames of raw text of knowledge base elements
+├── text/                      <- Folder with scraped wikipedia articles in .txt files
+├── vector_store.py            <- Class for interfacing with vector store of embedded text chunks
+├── vector_store.pickle        <- Saved vector store object
 ├── pyproject.toml             <- Poetry config specifying Python environment dependencies
 ├── poetry.lock                <- Locked dependencies to ensure consistent installs
 ├── .pre-commit-config.yaml    <- Linting configs
@@ -46,11 +43,12 @@ poetry run streamlit run app.py
 ### Knowledge Base
 Answers are based on the Wikipedia articles of all US Presidents and Secretaries of State.
 These articles were scraped using [Wikipedia's OpenSearch API](https://www.mediawiki.org/wiki/API:Opensearch).
-The `text/` and `chunks/` directories contain the raw text files.
+The `text/` directory contains the raw text files.
 
 ### Models
-1. A model to create vector embeddings of documents and questions. I use a [Sentence Transformer](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2).
-2. A generative chatbot to answer context-enriched queries. I use [OpenAI's gpt-4o-mini](https://platform.openai.com/docs/models#gpt-4o-mini).
+1. A model to create vector embeddings of documents and questions. I use an [SBERT Sentence Transformer](https://sbert.net/docs/sentence_transformer/usage/usage.html).
+2. A model to compute similarity between a query and context document (a "re-ranker"). I use an [SBERT Cross Encoder](https://sbert.net/docs/cross_encoder/usage/usage.html).
+3. A generative chatbot to answer context-enriched queries. I use [OpenAI's gpt-4o-mini](https://platform.openai.com/docs/models#gpt-4o-mini).
 
 ### Workflow
 In simple terms, the RAG system transforms a user's query into a prompt enriched with context from the knowledge base.
@@ -62,5 +60,6 @@ In simple terms, the RAG system transforms a user's query into a prompt enriched
 ###### At inference time
 1. Create a vector embedding of the question you want to ask.
 2. Apply cosine similarity to the knowledge base embeddings to find the documents most similar to the question.
-3. Create a prompt that supplements the question with the most similar documents.
-4. Submit the prompt to the generative chatbot to generate an answer.
+3. Refine the set of most similar documents using the re-ranker model.
+4. Create a prompt that supplements the question with the most similar documents.
+5. Submit the prompt to the generative chatbot to generate an answer.
