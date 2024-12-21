@@ -1,6 +1,6 @@
 import streamlit as st
 
-from main import PresidentsRAG
+from backend import PresidentsRAG
 
 how_it_works = """
 ## 💫 Ask a question about a President 💫
@@ -52,7 +52,7 @@ if st.button("Submit", type="primary", use_container_width=True):
     st.write(answer)
     with st.expander("Sources"):
         pretty_docs = [
-            f"### Document {i+1}\n##### `{id[:id.find('.txt')+4]}`\n{doc}"
+            f"### Document {i+1}\n##### `{id.split(':')[0]}` -- `starting @ character {id.split(':')[-1]}`\n{doc}"
             for i, (id, doc) in enumerate(zip(ids, documents))
         ]
         st.markdown("\n\n".join(pretty_docs))
