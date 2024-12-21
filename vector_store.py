@@ -11,7 +11,7 @@ from sentence_transformers import SentenceTransformer
 from tqdm import tqdm
 
 MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
-DOCUMENTS_ROOT = "text"
+VECTOR_STORE_PATH = "vector_store.pickle"
 
 
 def write_pickle(
@@ -52,10 +52,10 @@ def create_vector_store(
     ids = list()
     texts = list()
     embeddings = list()
-    for chunk in tqdm(chunks[:50]):
-        id = (
-            f'{chunk.metadata["source"].split("/")[-1]}:{chunk.metadata["start_index"]}'
-        )
+    for chunk in tqdm(chunks):
+        source = chunk.metadata["source"]
+        start_index = chunk.metadata["start_index"]
+        id = f'{source.split("/")[-1]}:{start_index}'
         text = chunk.page_content
         with torch.no_grad():
             embedding = sentence_transformer.encode(text)
@@ -70,33 +70,24 @@ def create_vector_store(
     write_pickle(vector_store, filename)
 
 
-class KnowledgeBase:
+class VectorStore:
     def __init__(self):
-        self.filenames = read_pickle("artifact_filenames.pickle")
-        self.text = read_pickle("artifact_text.pickle")
-        self.embeddings = np.load("artifact_embeddings.npy")
+        self.vector_store = read_pickle(VECTOR_STORE_PATH)
         self.sentence_transformer = SentenceTransformer(MODEL_NAME)
 
-    def embed_query(
+    def query(
         self,
         query: str,
-    ) -> np.array:
+        n_results: int,
+    ) -> dict:
         with torch.no_grad():
             query_embedding = self.sentence_transformer.encode([query])
-        return query_embedding
-
-    def fetch_similar_documents(
-        self,
-        query: str,
-        top_k: int,
-    ) -> dict:
-        query_embedding = self.embed_query(query)
-        similarity = 1 - cdist(self.embeddings, query_embedding, metric="cosine")[:, 0]
-        idx_top = np.flip(np.argsort(similarity))[:top_k]
-        respose = {
-            "filename": [self.filenames[i] for i in idx_top],
-            "text": [self.text[i] for i in idx_top],
-            "embedding": self.embeddings[idx_top],
-            "cosine_similarity": similarity[idx_top],
+        distance = cdist(
+            self.vector_store["embeddings"], query_embedding, metric="cosine"
+        )[:, 0]
+        idx_top = np.argsort(distance)[:n_results]
+        return {
+            "ids": [self.vector_store["ids"][i] for i in idx_top],
+            "texts": [self.vector_store["texts"][i] for i in idx_top],
+            "distances": distance[idx_top],
         }
-        return respose
