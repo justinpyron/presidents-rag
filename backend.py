@@ -2,11 +2,10 @@ import os
 
 import chromadb
 import jinja2
-from openai import OpenAI
-from sentence_transformers import CrossEncoder
-
 from create_vector_store import VECTOR_STORE_NAME, VECTOR_STORE_PATH
 from knowledge_base import KnowledgeBase
+from openai import OpenAI
+from sentence_transformers import CrossEncoder
 
 API_KEY = os.environ["OPENAI_API_KEY__PRESIDENTS_RAG"]
 OPENAI_MODEL = "gpt-4o-mini"
