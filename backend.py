@@ -1,11 +1,10 @@
 import os
 
-import chromadb
 import jinja2
-from create_vector_store import VECTOR_STORE_NAME, VECTOR_STORE_PATH
-from knowledge_base import KnowledgeBase
 from openai import OpenAI
 from sentence_transformers import CrossEncoder
+
+from vector_store import VectorStore
 
 API_KEY = os.environ["OPENAI_API_KEY__PRESIDENTS_RAG"]
 OPENAI_MODEL = "gpt-4o-mini"
@@ -25,8 +24,7 @@ Answer:
 
 class PresidentsRAG:
     def __init__(self) -> None:
-        client = chromadb.PersistentClient(path=VECTOR_STORE_PATH)
-        self.vector_store = client.get_collection(name=VECTOR_STORE_NAME)
+        self.vector_store = VectorStore()
         self.prompt_template = jinja2.Template(PROMPT_SKELETON)
         self.openai_client = OpenAI(api_key=API_KEY)
 
@@ -51,9 +49,9 @@ class PresidentsRAG:
         query: str,
         top_k: int,
     ) -> list[str]:
-        result = self.vector_store.query(query_texts=query, n_results=top_k)
-        documents = result["documents"][0]
-        ids = result["ids"][0]
+        result = self.vector_store.query(query=query, n_results=top_k)
+        documents = result["texts"]
+        ids = result["ids"]
         return ids, documents
 
     def rerank(
