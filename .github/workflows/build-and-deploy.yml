@@ -2,11 +2,6 @@ name: Build and Deploy
 
 on:
   workflow_dispatch:
-  # ⚠️⚠️⚠️ REMOVE PUSH TRIGGER AFTER TESTING ⚠️⚠️⚠️
-  # This will deploy on EVERY push to ANY branch - expensive and not production-ready!
-  # Delete the 'push:' section below once you've verified the deployment works.
-  push:
-  # ⚠️⚠️⚠️ REMOVE PUSH TRIGGER AFTER TESTING ⚠️⚠️⚠️
 
 env:
   GAR_LOCATION: ${{ vars.GAR_LOCATION }}
