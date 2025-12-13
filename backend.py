@@ -8,33 +8,34 @@ from vector_store import VectorStore
 
 API_KEY = os.environ["OPENAI_API_KEY__PRESIDENTS_RAG"]
 OPENAI_MODEL = "gpt-5-mini-2025-08-07"
-PROMPT_SKELETON = """
-You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use 3 sentences maximum and keep the answer concise.
-Question: {{ query }}
+PROMPT_TEMPLATE = """
+# ROLE
+You are a skilled question-answering assistant.
 
-Context:
+# INSTRUCTIONS
+Answer the question below using the retrieved context between <context> tags.
+If you don't know the answer, just say that you don't know.
+Keep the answer concise: use 3 sentences maximum.
+Return only the answer, no other text.
+
+# QUESTION
+{{ query }}
+
+# CONTEXT
+<context>
 {% for doc in documents %}
 DOCUMENT {{ loop.index }}
 {{ doc }}
 {% endfor %}
-
-Answer:
+</context>
 """
 
 
 class PresidentsRAG:
     def __init__(self) -> None:
         self.vector_store = VectorStore()
-        self.prompt_template = jinja2.Template(PROMPT_SKELETON)
+        self.prompt_template = jinja2.Template(PROMPT_TEMPLATE)
         self.openai_client = OpenAI(api_key=API_KEY)
-
-    def ping_openai(self, prompt: str) -> str:
-        response = self.openai_client.responses.create(
-            model=OPENAI_MODEL,
-            input=prompt,
-            reasoning={"effort": "minimal"},
-        )
-        return response.output[1].content[0].text
 
     def retrieve_documents(
         self,
@@ -59,6 +60,14 @@ class PresidentsRAG:
         ranked_docs = [documents[row["corpus_id"]] for row in ranks]
         return ranked_ids[:top_k], ranked_docs[:top_k]
 
+    def ping_openai(self, prompt: str) -> str:
+        response = self.openai_client.responses.create(
+            model=OPENAI_MODEL,
+            input=prompt,
+            reasoning={"effort": "minimal"},
+        )
+        return response.output[1].content[0].text
+
     def ask(
         self,
         query: str,
@@ -68,5 +77,6 @@ class PresidentsRAG:
         ids, docs = self.retrieve_documents(query, top_k_retrieval)
         top_ids, top_docs = self.rerank(query, ids, docs, top_k_rerank)
         prompt = self.prompt_template.render(query=query, documents=top_docs)
+        print(prompt)
         answer = self.ping_openai(prompt)
         return answer, top_ids, top_docs
