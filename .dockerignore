@@ -1,0 +1,55 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Jupyter notebooks
+*.ipynb
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Poetry
+pyproject.toml
+poetry.lock
+
+# Pre-commit
+.pre-commit-config.yaml
+
+# Documentation
+README.md
+*.md
+
+# GitHub
+.github/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.*
+
+# Testing
+tests/
+test_*.py
+*_test.py
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Unnecessary at runtime (scraped data is already in text/)
+scrape_wikipedia.py
+people.py
+
+# Development/exploration files
+notebook_*.ipynb
+scratchwork*.ipynb
