@@ -7,7 +7,7 @@ from sentence_transformers import CrossEncoder
 from vector_store import VectorStore
 
 API_KEY = os.environ["OPENAI_API_KEY__PRESIDENTS_RAG"]
-OPENAI_MODEL = "gpt-4o-mini"
+OPENAI_MODEL = "gpt-5-mini-2025-08-07"
 PROMPT_SKELETON = """
 You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use 3 sentences maximum and keep the answer concise.
 Question: {{ query }}
