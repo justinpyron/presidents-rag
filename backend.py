@@ -29,20 +29,11 @@ class PresidentsRAG:
         self.openai_client = OpenAI(api_key=API_KEY)
 
     def ping_openai(self, prompt: str) -> str:
-        completion = self.openai_client.chat.completions.create(
+        response = self.openai_client.responses.create(
             model=OPENAI_MODEL,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "You are a helpful assistant with close attention to detail.",
-                },
-                {
-                    "role": "user",
-                    "content": prompt,
-                },
-            ],
+            input=prompt,
         )
-        return completion.choices[0].message.content
+        return response.output
 
     def retrieve_documents(
         self,
