@@ -32,8 +32,9 @@ class PresidentsRAG:
         response = self.openai_client.responses.create(
             model=OPENAI_MODEL,
             input=prompt,
+            reasoning={"effort": "minimal"},
         )
-        return response.output
+        return response.output[1].content[0].text
 
     def retrieve_documents(
         self,
