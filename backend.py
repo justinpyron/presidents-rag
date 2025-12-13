@@ -77,6 +77,5 @@ class PresidentsRAG:
         ids, docs = self.retrieve_documents(query, top_k_retrieval)
         top_ids, top_docs = self.rerank(query, ids, docs, top_k_rerank)
         prompt = self.prompt_template.render(query=query, documents=top_docs)
-        print(prompt)
         answer = self.ping_openai(prompt)
         return answer, top_ids, top_docs
