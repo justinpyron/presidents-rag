@@ -10,7 +10,7 @@ from scipy.spatial.distance import cdist
 from sentence_transformers import SentenceTransformer
 from tqdm import tqdm
 
-MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
+MODEL_WEIGHTS = "weights/all-MiniLM-L6-v2"
 VECTOR_STORE_PATH = "vector_store.pickle"
 
 
@@ -47,7 +47,7 @@ def create_vector_store(
     documents_folder: str,
     filename: str,
 ) -> None:
-    sentence_transformer = SentenceTransformer(MODEL_NAME)
+    sentence_transformer = SentenceTransformer(MODEL_WEIGHTS)
     chunks = chunk_documents(documents_folder)
     ids = list()
     texts = list()
@@ -73,7 +73,7 @@ def create_vector_store(
 class VectorStore:
     def __init__(self):
         self.vector_store = read_pickle(VECTOR_STORE_PATH)
-        self.sentence_transformer = SentenceTransformer(MODEL_NAME)
+        self.sentence_transformer = SentenceTransformer(MODEL_WEIGHTS)
 
     def query(
         self,
