@@ -151,7 +151,7 @@ class Server:
                 query=request.query,
                 n_results=request.n_results,
             )
-            return QueryResponse(**result)
+            return QueryResponse.model_validate(result)
 
         @server.post("/rerank", response_model=RerankResponse)
         def rerank_endpoint(request: RerankRequest) -> RerankResponse:
@@ -170,7 +170,7 @@ class Server:
                 documents=request.documents,
                 top_k=request.top_k,
             )
-            return RerankResponse(**result)
+            return RerankResponse.model_validate(result)
 
         @server.get("/health")
         async def health_check():
