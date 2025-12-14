@@ -9,11 +9,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # This keeps dependencies in sync without manual duplication.
 # See .github/workflows/build-and-deploy.yml.
 
-# Copy necessary application files
-COPY app.py backend.py vector_store.py ./
-
-# Copy pre-built vector store
-COPY vector_store.pickle ./
+# Copy necessary application files (vector store now runs on Modal)
+COPY app.py backend.py ./
 
 # Expose port 8080 for Cloud Run
 EXPOSE 8080
