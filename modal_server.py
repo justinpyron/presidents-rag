@@ -37,8 +37,6 @@ class Server:
     @modal.enter()
     def load_models(self):
         """Load models and vector store on container startup."""
-        import numpy as np
-        import torch
         from sentence_transformers import CrossEncoder, SentenceTransformer
 
         # Load sentence transformer for embeddings
@@ -51,10 +49,6 @@ class Server:
         with open(VECTOR_STORE_PATH, "rb") as handle:
             self.vector_store = pickle.load(handle)
 
-        # Store for later use
-        self.torch = torch
-        self.np = np
-
     def query(self, query: str, n_results: int) -> dict:
         """
         Query the vector store for similar documents.
@@ -66,10 +60,12 @@ class Server:
         Returns:
             Dictionary with ids, texts, and distances
         """
+        import numpy as np
+        import torch
         from scipy.spatial.distance import cdist
 
         # Generate query embedding
-        with self.torch.no_grad():
+        with torch.no_grad():
             query_embedding = self.sentence_transformer.encode([query])
 
         # Compute distances
@@ -78,7 +74,7 @@ class Server:
         )[:, 0]
 
         # Get top results
-        idx_top = self.np.argsort(distance)[:n_results]
+        idx_top = np.argsort(distance)[:n_results]
 
         return {
             "ids": [self.vector_store["ids"][i] for i in idx_top],
