@@ -4,7 +4,7 @@ import jinja2
 from openai import OpenAI
 from sentence_transformers import CrossEncoder
 
-from vector_store import VectorStore
+from vector_store_client import VectorStore
 
 API_KEY = os.environ["OPENAI_API_KEY__PRESIDENTS_RAG"]
 OPENAI_MODEL = "gpt-5-mini-2025-08-07"
