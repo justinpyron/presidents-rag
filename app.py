@@ -5,7 +5,7 @@ from backend import PresidentsRAG
 how_it_works = """
 This app uses **Retrieval Augmented Generation (RAG)** to answer questions using a knowledge base of Wikipedia articles about US Presidents and Secretaries of State.
 
-### How RAG Works
+### ⚙️ How RAG Works
 
 RAG transforms your question into a context-enriched prompt by retrieving relevant documents from the knowledge base.
 
@@ -18,13 +18,13 @@ RAG transforms your question into a context-enriched prompt by retrieving releva
 3. Re-rank results using a cross-encoder model
 4. Send your question + top documents to a generative model for the answer
 
-### Models Used
+### ⚡️ Models Used
 - **Embeddings:** [SBERT Sentence Transformer](https://sbert.net/docs/sentence_transformer/usage/usage.html)
 - **Re-ranking:** [SBERT Cross Encoder](https://sbert.net/docs/cross_encoder/usage/usage.html)
 - **Generation:** OpenAI GPT-4o mini
 
-### Full Details
-View the [full implementation on GitHub](https://github.com/justinpyron/presidents-rag) including source documents in `text/` and `chunks/`.
+### 🔍 Full Details
+View the [full implementation on GitHub](https://github.com/justinpyron/presidents-rag).
 """
 
 
