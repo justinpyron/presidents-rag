@@ -5,7 +5,7 @@ import torch
 from scipy.spatial.distance import cdist
 from sentence_transformers import SentenceTransformer
 
-MODEL_WEIGHTS = "weights/all-MiniLM-L6-v2"
+MODEL_WEIGHTS = "weights/sentence-transformers_all-MiniLM-L6-v2"
 VECTOR_STORE_PATH = "vector_store.pickle"
 
 
