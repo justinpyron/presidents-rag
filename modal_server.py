@@ -28,7 +28,7 @@ volume = modal.Volume.from_name(MODAL_VOLUME_NAME)
 @app.cls(
     image=image,
     volumes={"/data": volume},
-    cpu=2,
+    cpu=1,
     scaledown_window=600,
 )
 class Server:
