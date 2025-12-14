@@ -48,7 +48,8 @@ with st.expander("How it works"):
     st.markdown(how_it_works)
 query = st.text_area("Ask a question", "")
 if st.button("Submit", type="primary", use_container_width=True):
-    answer, ids, documents = rag.ask(query)
+    with st.spinner("Searching docs + writing answer..."):
+        answer, ids, documents = rag.ask(query)
     st.write(answer)
     with st.expander("Sources"):
         pretty_docs = [
