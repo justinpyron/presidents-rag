@@ -4,7 +4,16 @@ import pickle
 
 import modal
 
-app = modal.App("presidents-rag")
+# Modal configuration
+MODAL_APP_NAME = "presidents-rag"
+MODAL_VOLUME_NAME = "presidents-rag"
+
+# Model and data paths (in Modal volume)
+SENTENCE_TRANSFORMER_PATH = "/data/weights/sentence-transformers_all-MiniLM-L6-v2"
+CROSS_ENCODER_PATH = "/data/weights/cross-encoder_ms-marco-MiniLM-L-6-v2"
+VECTOR_STORE_PATH = "/data/vector_store.pickle"
+
+app = modal.App(MODAL_APP_NAME)
 image = modal.Image.debian_slim(python_version="3.12").pip_install(
     "torch==2.5.1",
     "sentence-transformers==3.3.0",
@@ -13,7 +22,7 @@ image = modal.Image.debian_slim(python_version="3.12").pip_install(
     "pydantic==2.10.4",
     "fastapi==0.115.0",
 )
-volume = modal.Volume.from_name("presidents-rag")
+volume = modal.Volume.from_name(MODAL_VOLUME_NAME)
 
 
 @app.cls(
@@ -33,17 +42,13 @@ class Server:
         from sentence_transformers import CrossEncoder, SentenceTransformer
 
         # Load sentence transformer for embeddings
-        self.sentence_transformer = SentenceTransformer(
-            "/data/weights/sentence-transformers_all-MiniLM-L6-v2"
-        )
+        self.sentence_transformer = SentenceTransformer(SENTENCE_TRANSFORMER_PATH)
 
         # Load cross encoder for reranking
-        self.cross_encoder = CrossEncoder(
-            "/data/weights/cross-encoder_ms-marco-MiniLM-L-6-v2"
-        )
+        self.cross_encoder = CrossEncoder(CROSS_ENCODER_PATH)
 
         # Load vector store
-        with open("/data/vector_store.pickle", "rb") as handle:
+        with open(VECTOR_STORE_PATH, "rb") as handle:
             self.vector_store = pickle.load(handle)
 
         # Store for later use
