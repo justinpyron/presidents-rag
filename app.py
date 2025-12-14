@@ -3,36 +3,28 @@ import streamlit as st
 from backend import PresidentsRAG
 
 how_it_works = """
-## 💫 Ask a question about a President 💫
+This app uses **Retrieval Augmented Generation (RAG)** to answer questions using a knowledge base of Wikipedia articles about US Presidents and Secretaries of State.
 
-An answer based on a knowledge base of documents is provided using Retrieval Augmented Generation (RAG).
+### ⚙️ How RAG Works
 
-## Knowledge Base
-Answers are based on the Wikipedia articles of all US Presidents and Secretaries of State.
-These articles were scraped using [Wikipedia's OpenSearch API](https://www.mediawiki.org/wiki/API:Opensearch).
-The `text/` and `chunks/` directories in the GitHub contain the raw text files.
+RAG transforms your question into a context-enriched prompt by retrieving relevant documents from the knowledge base.
 
-## Models
-1. A model to create vector embeddings of documents and questions. I use an [SBERT Sentence Transformer](https://sbert.net/docs/sentence_transformer/usage/usage.html).
-2. A model to re-rank documents according to similarity to the query. I use an [SBERT Cross Encoder](https://sbert.net/docs/cross_encoder/usage/usage.html).
-3. A generative chatbot to answer context-enriched queries. I use [OpenAI's gpt-4o-mini](https://platform.openai.com/docs/models#gpt-4o-mini).
+**Offline:**
+1. Split documents into chunks and create vector embeddings for each chunk
 
-## Workflow
-In simple terms, the RAG system transforms a user's query into a prompt enriched with context from the knowledge base.
+**At query time:**
+1. Create a vector embedding of your question
+2. Find the most similar document chunks using cosine similarity
+3. Re-rank results using a cross-encoder model
+4. Send your question + top documents to a generative model for the answer
 
-###### Offline
-1. Create a knowledge base of documents.
-2. Create a vector embedding of each document in the knowledge base.
+### ⚡️ Models Used
+- **Embeddings:** [SBERT Sentence Transformer](https://sbert.net/docs/sentence_transformer/usage/usage.html)
+- **Re-ranking:** [SBERT Cross Encoder](https://sbert.net/docs/cross_encoder/usage/usage.html)
+- **Generation:** OpenAI GPT-4o mini
 
-###### At inference time
-1. Create a vector embedding of the question you want to ask.
-2. Apply cosine similarity to the embeddings to find the documents most similar to the question.
-3. Refine the retrieved documents using a re-ranker model.
-4. Create a prompt that supplements the question with the most similar documents.
-5. Submit the prompt to the generative chatbot to generate an answer.
-
-## Full Details
-See 👉 [GitHub](https://github.com/justinpyron/presidents-rag).
+### 🔍 Full Details
+View the [full implementation on GitHub](https://github.com/justinpyron/presidents-rag).
 """
 
 
