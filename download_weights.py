@@ -1,30 +1,34 @@
 """
 Download sentence-transformers model weights to local directory.
 
-This script downloads the "sentence-transformers/all-MiniLM-L6-v2" model
-and saves it to the weights/ directory for offline use.
+This script downloads model weights and saves them to the weights/ directory
+in a subfolder named after the model.
 """
 
+import argparse
 import os
 
 from sentence_transformers import SentenceTransformer
 
 
-def download_weights():
-    """Download model weights to weights/ directory."""
-    model_name = "sentence-transformers/all-MiniLM-L6-v2"
-    weights_dir = "weights/all-MiniLM-L6-v2"
+def download_weights(model_name: str):
+    """Download model weights to weights/{model_name}/ directory.
+
+    Args:
+        model_name: Full model name (e.g., "sentence-transformers/all-MiniLM-L6-v2" or "cross-encoder/ms-marco-MiniLM-L-6-v2)
+    """
+    # Extract model name for folder
+    folder_name = model_name.replace("/", "_")
+    weights_dir = os.path.join("weights", folder_name)
 
     # Create weights directory if it doesn't exist
     os.makedirs(weights_dir, exist_ok=True)
 
-    print(f"Downloading {model_name}...")
-    print(f"Saving to {os.path.abspath(weights_dir)}")
-
     # Download and save the model
+    print(f"Downloading {model_name}...")
     model = SentenceTransformer(model_name)
+    print(f"Saving to {os.path.abspath(weights_dir)}")
     model.save(weights_dir)
-
     print(f"✓ Model successfully downloaded to {weights_dir}/")
     print(f"  Size on disk: {get_dir_size(weights_dir):.2f} MB")
 
@@ -41,4 +45,13 @@ def get_dir_size(path):
 
 
 if __name__ == "__main__":
-    download_weights()
+    parser = argparse.ArgumentParser(
+        description="Download sentence-transformers model weights to local directory."
+    )
+    parser.add_argument(
+        "model_name",
+        type=str,
+        help='Model name to download (e.g., "sentence-transformers/all-MiniLM-L6-v2")',
+    )
+    args = parser.parse_args()
+    download_weights(args.model_name)
