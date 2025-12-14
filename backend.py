@@ -8,6 +8,7 @@ from vector_store_client import VectorStore
 
 API_KEY = os.environ["OPENAI_API_KEY__PRESIDENTS_RAG"]
 OPENAI_MODEL = "gpt-5-mini-2025-08-07"
+CROSS_ENCODER_WEIGHTS = "weights/cross-encoder_ms-marco-MiniLM-L-6-v2"
 PROMPT_TEMPLATE = """
 # ROLE
 You are a skilled question-answering assistant.
@@ -54,7 +55,7 @@ class PresidentsRAG:
         documents: list[str],
         top_k: int,
     ) -> list[str]:
-        model = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
+        model = CrossEncoder(CROSS_ENCODER_WEIGHTS)
         ranks = model.rank(query, documents)
         ranked_ids = [ids[row["corpus_id"]] for row in ranks]
         ranked_docs = [documents[row["corpus_id"]] for row in ranks]
