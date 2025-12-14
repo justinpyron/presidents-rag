@@ -30,11 +30,7 @@ poetry install
 ```
 
 # Usage
-A Streamlit web app is the frontend for interacting with the model.
-
-The app can be accessed at https://presidents-rag.streamlit.app.
-
-Alternatively, the app can be run locally with
+The app can be run locally with
 ```
 poetry run streamlit run app.py
 ```
@@ -48,7 +44,7 @@ The `text/` directory contains the raw text files.
 ### Models
 1. A model to create vector embeddings of documents and questions. I use an [SBERT Sentence Transformer](https://sbert.net/docs/sentence_transformer/usage/usage.html).
 2. A model to compute similarity between a query and context document (a "re-ranker"). I use an [SBERT Cross Encoder](https://sbert.net/docs/cross_encoder/usage/usage.html).
-3. A generative chatbot to answer context-enriched queries. I use [OpenAI's gpt-4o-mini](https://platform.openai.com/docs/models#gpt-4o-mini).
+3. A generative chatbot to answer context-enriched queries. I use OpenAI models.
 
 ### Workflow
 In simple terms, the RAG system transforms a user's query into a prompt enriched with context from the knowledge base.
