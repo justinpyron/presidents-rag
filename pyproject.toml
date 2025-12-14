@@ -8,16 +8,19 @@ package-mode = false
 
 [tool.poetry.dependencies]
 python = ">=3.12,<3.14"
+streamlit = "^1.40.1"
+openai = "^2.6.0"
+jinja2 = "^3.1.4"
+httpx = "^0.28.1"
+modal = "^1.2.5"
+
+[tool.poetry.group.dev.dependencies]
+# ML dependencies (used for Modal app and local vector store creation)
 numpy = "^2.1.3"
 torch = "^2.5.1"
 sentence-transformers = "^3.3.0"
-openai = "^2.6.0"
 scipy = "^1.14.1"
-streamlit = "^1.40.1"
-modal = "^1.2.5"
-httpx = "^0.28.1"
-
-[tool.poetry.group.dev.dependencies]
+# Development tools
 pandas = "^2.2.3"
 transformers = "^4.46.2"
 accelerate = "^1.1.1"
