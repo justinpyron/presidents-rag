@@ -8,7 +8,7 @@ in a subfolder named after the model.
 import argparse
 import os
 
-from sentence_transformers import SentenceTransformer
+from sentence_transformers import CrossEncoder, SentenceTransformer
 
 
 def download_weights(model_name: str):
@@ -26,7 +26,13 @@ def download_weights(model_name: str):
 
     # Download and save the model
     print(f"Downloading {model_name}...")
-    model = SentenceTransformer(model_name)
+
+    # Use appropriate model class based on model type
+    if "cross-encoder" in model_name.lower():
+        model = CrossEncoder(model_name)
+    else:
+        model = SentenceTransformer(model_name)
+
     print(f"Saving to {os.path.abspath(weights_dir)}")
     model.save(weights_dir)
     print(f"✓ Model successfully downloaded to {weights_dir}/")
