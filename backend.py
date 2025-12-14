@@ -5,7 +5,7 @@ import jinja2
 from openai import OpenAI
 
 API_KEY = os.environ["OPENAI_API_KEY__PRESIDENTS_RAG"]
-MODAL_APP_URL = os.environ["MODAL_APP_URL"]
+SERVER_URL = os.environ["SERVER_URL"]
 OPENAI_MODEL = "gpt-5-mini-2025-08-07"
 PROMPT_TEMPLATE = """
 # ROLE
@@ -38,7 +38,7 @@ DOCUMENT {{ loop.index }}
 
 class PresidentsRAG:
     def __init__(self) -> None:
-        self.http_client = httpx.Client(base_url=MODAL_APP_URL, timeout=30.0)
+        self.http_client = httpx.Client(base_url=SERVER_URL, timeout=30.0)
         self.prompt_template = jinja2.Template(PROMPT_TEMPLATE)
         self.openai_client = OpenAI(api_key=API_KEY)
 
