@@ -15,12 +15,13 @@ VECTOR_STORE_PATH = "/data/vector_store.pickle"
 
 app = modal.App(MODAL_APP_NAME)
 image = modal.Image.debian_slim(python_version="3.12").pip_install(
-    "torch==2.5.1",
-    "sentence-transformers==3.3.0",
-    "numpy==2.1.3",
-    "scipy==1.14.1",
-    "pydantic==2.10.4",
-    "fastapi==0.115.0",
+    "torch==2.12.1",
+    "sentence-transformers==5.6.0",
+    "transformers==5.12.1",
+    "numpy==2.5.0",
+    "scipy==1.18.0",
+    "pydantic==2.13.4",
+    "fastapi==0.138.0",
 )
 volume = modal.Volume.from_name(MODAL_VOLUME_NAME)
 

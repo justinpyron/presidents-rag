@@ -2,9 +2,12 @@ import os
 
 import httpx
 import jinja2
+from dotenv import load_dotenv
 from openai import OpenAI
 
-API_KEY = os.environ["OPENAI_API_KEY__PRESIDENTS_RAG"]
+load_dotenv()
+
+API_KEY = os.environ["OPENAI_API_KEY"]
 SERVER_URL = os.environ["SERVER_URL"]
 OPENAI_MODEL = "gpt-5-mini-2025-08-07"
 PROMPT_TEMPLATE = """
