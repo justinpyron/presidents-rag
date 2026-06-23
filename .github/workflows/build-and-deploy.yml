@@ -22,15 +22,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Install uv
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-
-      # Step 3: Set up Python environment
+      # Step 2: Set up Python environment
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
+      # Step 3: Install uv
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
 
       # Step 4: Export dependencies to requirements.txt
       - name: Export requirements from uv
