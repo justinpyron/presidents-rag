@@ -106,4 +106,4 @@ jobs:
             --description="Deployed from GitHub Actions - ${{ github.sha }}"
           env_vars: |
             SERVER_URL=${{ env.SERVER_URL }}
-            OPENAI_API_KEY__PRESIDENTS_RAG=${{ secrets.OPENAI_API_KEY__PRESIDENTS_RAG }}
+            OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}

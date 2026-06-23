@@ -7,7 +7,7 @@ from openai import OpenAI
 
 load_dotenv()
 
-API_KEY = os.environ["OPENAI_API_KEY__PRESIDENTS_RAG"]
+API_KEY = os.environ["OPENAI_API_KEY"]
 SERVER_URL = os.environ["SERVER_URL"]
 OPENAI_MODEL = "gpt-5-mini-2025-08-07"
 PROMPT_TEMPLATE = """
