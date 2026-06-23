@@ -2,7 +2,10 @@ import os
 
 import httpx
 import jinja2
+from dotenv import load_dotenv
 from openai import OpenAI
+
+load_dotenv()
 
 API_KEY = os.environ["OPENAI_API_KEY__PRESIDENTS_RAG"]
 SERVER_URL = os.environ["SERVER_URL"]
