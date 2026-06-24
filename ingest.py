@@ -38,7 +38,7 @@ class ChunkRecord:
 
 
 def chunk_txt_files(
-    directory: str,  # TODO: Rename to documents_folder
+    documents_folder: str,
     chunk_size: int,
     chunk_overlap: int,
 ) -> list[ChunkRecord]:
@@ -48,7 +48,7 @@ def chunk_txt_files(
         add_start_index=True,
     )
     chunks: list[ChunkRecord] = []
-    for path in sorted(Path(directory).glob("*.txt")):
+    for path in sorted(Path(documents_folder).glob("*.txt")):
         text = path.read_text(encoding="utf-8")
         for document in text_splitter.create_documents([text]):
             chunks.append(
@@ -62,22 +62,22 @@ def chunk_txt_files(
 
 
 def ingest(
-    directory: str,
+    documents_folder: str,
     model_name: str,
     chunk_size: int,
     chunk_overlap: int,
     batch_size: int,
 ) -> int:
-    # TODO: Add docstring
+    """Ingest text files into the vector store."""
     if model_name not in MODELS:
         raise ValueError(
             f"Model {model_name!r} is not allowed. "
             f"Choose from: {list(MODELS)}"
         )
     model = MODELS[model_name]
-    chunks = chunk_txt_files(directory, chunk_size, chunk_overlap)
+    chunks = chunk_txt_files(documents_folder, chunk_size, chunk_overlap)
     if not chunks:
-        raise ValueError(f"No .txt files found in {directory!r}")
+        raise ValueError(f"No .txt files found in {documents_folder!r}")
 
     session = get_session()
     try:
@@ -138,9 +138,9 @@ def main() -> None:
     )
     parser.add_argument(
         "-d",
-        "--directory",
+        "--documents-folder",
         required=True,
-        help="Directory containing .txt files to ingest.",
+        help="Folder containing .txt files to ingest.",
     )
     parser.add_argument(
         "-m",
@@ -168,7 +168,7 @@ def main() -> None:
 
     start_time = time.time()
     num_chunks = ingest(
-        directory=args.directory,
+        documents_folder=args.documents_folder,
         model_name=args.model,
         chunk_size=args.chunk_size,
         chunk_overlap=args.chunk_overlap,
@@ -176,7 +176,7 @@ def main() -> None:
     )
     elapsed = time.time() - start_time
     print(
-        f"Ingested {num_chunks} chunks from {args.directory} in {elapsed:.1f}s"
+        f"Ingested {num_chunks} chunks from {args.documents_folder} in {elapsed:.1f}s"
     )
 
 
