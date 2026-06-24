@@ -38,6 +38,7 @@ dev = [
     "sqlalchemy>=2.0.51",
     "torch>=2.12.1",
     "transformers>=5.12.1",
+    "psycopg[binary]>=3.3.4",
 ]
 
 [tool.hatch.build.targets.wheel]
