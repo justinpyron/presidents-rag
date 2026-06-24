@@ -137,11 +137,13 @@ def main() -> None:
         description="Ingest text files into the vector store."
     )
     parser.add_argument(
+        "-d",
         "--directory",
         required=True,
         help="Directory containing .txt files to ingest.",
     )
     parser.add_argument(
+        "-m",
         "--model",
         required=True,
         choices=MODELS,
