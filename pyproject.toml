@@ -25,7 +25,6 @@ dev = [
     "fastapi>=0.115.0",
     "ipykernel>=7.3.0",
     "jupyterlab>=4.6.0",
-    "langchain>=1.3.11",
     "lxml>=6.1.1",
     "modal>=1.5.0",
     "numpy>=2.5.0",
@@ -38,6 +37,7 @@ dev = [
     "torch>=2.12.1",
     "transformers>=5.12.1",
     "psycopg[binary]>=3.3.4",
+    "langchain-text-splitters>=1.1.2",
 ]
 
 [tool.hatch.build.targets.wheel]
