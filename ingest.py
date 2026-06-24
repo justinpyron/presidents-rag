@@ -1,7 +1,6 @@
 """Chunk documents, embed them, and load into the vector store database."""
 
 import argparse
-import os
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -11,13 +10,24 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from sentence_transformers import SentenceTransformer
 from sqlalchemy import select
 
-from db.models import (
-    ALLOWED_MODEL_NAMES,
-    MODEL_WEIGHTS_PATHS,
-    VectorStoreConfig,
-    get_model_config,
-)
+from db.models import ChunkDim384, VectorStoreConfig
 from db.session import get_session
+
+
+@dataclass(frozen=True)
+class EmbeddingModelConfig:
+    weights_path: str
+    data_model: type
+    dim: int
+
+
+MODELS = {
+    "sentence-transformers/all-MiniLM-L6-v2": EmbeddingModelConfig(
+        weights_path="weights/sentence-transformers_all-MiniLM-L6-v2",
+        data_model=ChunkDim384,
+        dim=384,
+    ),
+}
 
 
 @dataclass(frozen=True)
@@ -51,13 +61,6 @@ def chunk_txt_files(
     return chunks
 
 
-def load_embedding_model(model_name: str) -> SentenceTransformer:
-    weights_path = MODEL_WEIGHTS_PATHS.get(model_name, model_name)
-    if os.path.isdir(weights_path):
-        return SentenceTransformer(weights_path)
-    return SentenceTransformer(model_name)
-
-
 def ingest(
     directory: str,
     model_name: str,
@@ -66,7 +69,12 @@ def ingest(
     batch_size: int,
 ) -> int:
     # TODO: Add docstring
-    chunk_model, dim = get_model_config(model_name)
+    if model_name not in MODELS:
+        raise ValueError(
+            f"Model {model_name!r} is not allowed. "
+            f"Choose from: {list(MODELS)}"
+        )
+    model = MODELS[model_name]
     chunks = chunk_txt_files(directory, chunk_size, chunk_overlap)
     if not chunks:
         raise ValueError(f"No .txt files found in {directory!r}")
@@ -88,15 +96,15 @@ def ingest(
             )
         vector_store_config = VectorStoreConfig(
             model_name=model_name,
-            dim=dim,
+            dim=model.dim,
             chunk_size=chunk_size,
             chunk_overlap=chunk_overlap,
         )
         session.add(vector_store_config)
         session.flush()
 
-        # 2. Create embedding vector records
-        embedder = load_embedding_model(model_name)
+        # 2. Create embedding records
+        embedder = SentenceTransformer(model.weights_path)
         texts = [chunk.text for chunk in chunks]
         embeddings = embedder.encode(
             texts,
@@ -104,7 +112,7 @@ def ingest(
             show_progress_bar=True,
         )
         chunk_records = [
-            chunk_model(
+            model.data_model(
                 vector_store_config_id=vector_store_config.id,
                 source=chunk.source,
                 start_index=chunk.start_index,
@@ -136,7 +144,7 @@ def main() -> None:
     parser.add_argument(
         "--model",
         required=True,
-        choices=ALLOWED_MODEL_NAMES,
+        choices=MODELS,
         help="Sentence-transformers model name.",
     )
     parser.add_argument("--chunk-size", type=int, default=900)

@@ -14,25 +14,6 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-MINI_L6_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
-
-ALLOWED_MODEL_NAMES = [
-    MINI_L6_MODEL,
-]
-
-MODEL_WEIGHTS_PATHS: dict[str, str] = {
-    MINI_L6_MODEL: "weights/sentence-transformers_all-MiniLM-L6-v2",
-}
-
-
-def get_model_config(model_name: str) -> tuple[type, int]:
-    if model_name == MINI_L6_MODEL:
-        return ChunkDim384, 384
-    raise ValueError(
-        f"Model {model_name!r} is not allowed. "
-        f"Choose from: {ALLOWED_MODEL_NAMES}"
-    )
-
 
 class Base(DeclarativeBase):
     pass
