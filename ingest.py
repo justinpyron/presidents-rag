@@ -149,9 +149,9 @@ def main() -> None:
         choices=MODELS,
         help="Sentence-transformers model name.",
     )
-    parser.add_argument("--chunk-size", type=int, default=900)
-    parser.add_argument("--chunk-overlap", type=int, default=300)
-    parser.add_argument("--batch-size", type=int, default=64)
+    parser.add_argument("-cs", "--chunk-size", type=int, default=900)
+    parser.add_argument("-co", "--chunk-overlap", type=int, default=300)
+    parser.add_argument("-b", "--batch-size", type=int, default=64)
     args = parser.parse_args()
 
     num_chunks = ingest(
