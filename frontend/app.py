@@ -1,6 +1,6 @@
 import streamlit as st
 
-from backend import PresidentsRAG
+from frontend.client import PresidentsRAG
 
 how_it_works = """
 This app uses **Retrieval Augmented Generation (RAG)** to answer questions using a knowledge base of Wikipedia articles about US Presidents and Secretaries of State.
@@ -33,7 +33,9 @@ def load_rag() -> PresidentsRAG:
     return PresidentsRAG()
 
 
-st.set_page_config(page_title="Presidents RAG", layout="centered", page_icon="🇺🇸")
+st.set_page_config(
+    page_title="Presidents RAG", layout="centered", page_icon="🇺🇸"
+)
 rag = load_rag()
 st.title("US Presidents RAG 🇺🇸")
 with st.expander("How it works"):

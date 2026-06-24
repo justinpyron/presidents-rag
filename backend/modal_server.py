@@ -9,7 +9,9 @@ MODAL_APP_NAME = "presidents-rag"
 MODAL_VOLUME_NAME = "presidents-rag"
 
 # Model and data paths (in Modal volume)
-SENTENCE_TRANSFORMER_PATH = "/data/weights/sentence-transformers_all-MiniLM-L6-v2"
+SENTENCE_TRANSFORMER_PATH = (
+    "/data/weights/sentence-transformers_all-MiniLM-L6-v2"
+)
 CROSS_ENCODER_PATH = "/data/weights/cross-encoder_ms-marco-MiniLM-L-6-v2"
 VECTOR_STORE_PATH = "/data/vector_store.pickle"
 
@@ -41,7 +43,9 @@ class Server:
         from sentence_transformers import CrossEncoder, SentenceTransformer
 
         # Load sentence transformer for embeddings
-        self.sentence_transformer = SentenceTransformer(SENTENCE_TRANSFORMER_PATH)
+        self.sentence_transformer = SentenceTransformer(
+            SENTENCE_TRANSFORMER_PATH
+        )
 
         # Load cross encoder for reranking
         self.cross_encoder = CrossEncoder(CROSS_ENCODER_PATH)

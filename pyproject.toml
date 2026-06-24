@@ -40,4 +40,4 @@ dev = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["db"]
+packages = ["db", "backend", "frontend"]

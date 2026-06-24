@@ -39,12 +39,14 @@ DOCUMENT {{ loop.index }}
 """
 
 
+# TODO: Rename to RAGClient
 class PresidentsRAG:
     def __init__(self) -> None:
         self.http_client = httpx.Client(base_url=SERVER_URL, timeout=30.0)
         self.prompt_template = jinja2.Template(PROMPT_TEMPLATE)
         self.openai_client = OpenAI(api_key=API_KEY)
 
+    # TODO: Rename to retrieve
     def retrieve_documents(
         self,
         query: str,
@@ -99,3 +101,6 @@ class PresidentsRAG:
         prompt = self.prompt_template.render(query=query, documents=top_docs)
         answer = self.ping_openai(prompt)
         return answer, top_ids, top_docs
+
+
+# TODO: Rename this module to rag_client.py?
