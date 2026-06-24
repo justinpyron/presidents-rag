@@ -5,10 +5,13 @@ import jinja2
 from dotenv import load_dotenv
 from openai import OpenAI
 
+from backend.retrieval import RetrievedChunk
+
 load_dotenv()
 
 API_KEY = os.environ["OPENAI_API_KEY"]
 SERVER_URL = os.environ["SERVER_URL"]
+VECTOR_STORE_CONFIG_ID = int(os.environ["VECTOR_STORE_CONFIG_ID"])
 OPENAI_MODEL = "gpt-5-mini-2025-08-07"
 PROMPT_TEMPLATE = """
 # ROLE
@@ -46,41 +49,45 @@ class PresidentsRAG:
         self.prompt_template = jinja2.Template(PROMPT_TEMPLATE)
         self.openai_client = OpenAI(api_key=API_KEY)
 
-    # TODO: Rename to retrieve
-    def retrieve_documents(
+    def retrieve(
         self,
         query: str,
         top_k: int,
-    ) -> tuple[list[str], list[str]]:
+        vector_store_config_id: int,
+        source: str | None = None,
+    ) -> list[RetrievedChunk]:
         response = self.http_client.post(
-            "/query",
-            json={"query": query, "n_results": top_k},
+            "/retrieve",
+            json={
+                "query": query,
+                "vector_store_config_id": vector_store_config_id,
+                "top_k": top_k,
+                "source": source,
+            },
         )
         response.raise_for_status()
-        result = response.json()
-        documents = result["texts"]
-        ids = result["ids"]
-        return ids, documents
+        return [
+            RetrievedChunk.model_validate(chunk) for chunk in response.json()
+        ]
 
     def rerank(
         self,
         query: str,
-        ids: list[str],
-        documents: list[str],
+        chunks: list[RetrievedChunk],
         top_k: int,
-    ) -> tuple[list[str], list[str]]:
+    ) -> list[RetrievedChunk]:
         response = self.http_client.post(
             "/rerank",
             json={
                 "query": query,
-                "ids": ids,
-                "documents": documents,
+                "chunks": [chunk.model_dump() for chunk in chunks],
                 "top_k": top_k,
             },
         )
         response.raise_for_status()
-        result = response.json()
-        return result["ids"], result["documents"]
+        return [
+            RetrievedChunk.model_validate(chunk) for chunk in response.json()
+        ]
 
     def ping_openai(self, prompt: str) -> str:
         response = self.openai_client.responses.create(
@@ -93,14 +100,24 @@ class PresidentsRAG:
     def ask(
         self,
         query: str,
+        vector_store_config_id: int = VECTOR_STORE_CONFIG_ID,
+        source: str | None = None,
         top_k_retrieval: int = 100,
         top_k_rerank: int = 20,
-    ) -> tuple[dict, str]:
-        ids, docs = self.retrieve_documents(query, top_k_retrieval)
-        top_ids, top_docs = self.rerank(query, ids, docs, top_k_rerank)
-        prompt = self.prompt_template.render(query=query, documents=top_docs)
+    ) -> tuple[str, list[RetrievedChunk]]:
+        chunks = self.retrieve(
+            query=query,
+            top_k=top_k_retrieval,
+            vector_store_config_id=vector_store_config_id,
+            source=source,
+        )
+        top_chunks = self.rerank(query, chunks, top_k_rerank)
+        prompt = self.prompt_template.render(
+            query=query,
+            documents=[chunk.text for chunk in top_chunks],
+        )
         answer = self.ping_openai(prompt)
-        return answer, top_ids, top_docs
+        return answer, top_chunks
 
 
 # TODO: Rename this module to rag_client.py?

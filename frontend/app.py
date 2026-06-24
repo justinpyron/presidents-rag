@@ -43,11 +43,13 @@ with st.expander("How it works"):
 query = st.text_area("Ask a question", "")
 if st.button("Submit", type="primary", use_container_width=True):
     with st.spinner("Searching docs + writing answer..."):
-        answer, ids, documents = rag.ask(query)
+        answer, chunks = rag.ask(query)
     st.write(answer)
     with st.expander("Sources"):
         pretty_docs = [
-            f"### Document {i+1}\n##### `{id.split(':')[0]}` -- `starting @ character {id.split(':')[-1]}`\n{doc}"
-            for i, (id, doc) in enumerate(zip(ids, documents))
+            f"### Document {i+1}\n"
+            f"##### `{chunk.source}` -- `starting @ character {chunk.start_index}`\n"
+            f"{chunk.text}"
+            for i, chunk in enumerate(chunks)
         ]
         st.markdown("\n\n".join(pretty_docs))
