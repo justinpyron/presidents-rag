@@ -8,9 +8,6 @@ handles model loading, the DB session, and the FastAPI wiring.
 import os
 
 import modal
-from dotenv import load_dotenv
-
-load_dotenv()
 
 MODAL_APP_NAME = "presidents-rag"
 MODAL_VOLUME_NAME = "presidents-rag"
