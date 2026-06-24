@@ -14,8 +14,25 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-CHUNK_MINI_L6_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
-CHUNK_MINI_L6_DIM = 384
+MINI_L6_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+MINI_L6_DIM = 384
+
+ALLOWED_MODEL_NAMES = [
+    MINI_L6_MODEL,
+]
+
+MODEL_WEIGHTS_PATHS: dict[str, str] = {
+    MINI_L6_MODEL: "weights/sentence-transformers_all-MiniLM-L6-v2",
+}
+
+
+def get_model_config(model_name: str) -> tuple[type, int]:
+    if model_name == MINI_L6_MODEL:
+        return ChunkMiniL6, MINI_L6_DIM
+    raise ValueError(
+        f"Model {model_name!r} is not allowed. "
+        f"Choose from: {ALLOWED_MODEL_NAMES}"
+    )
 
 
 class Base(DeclarativeBase):
@@ -71,6 +88,6 @@ class ChunkMiniL6(Base):
     start_index: Mapped[int] = mapped_column(Integer, nullable=False)
     text: Mapped[str] = mapped_column(Text, nullable=False)
     embedding: Mapped[list[float]] = mapped_column(
-        Vector(CHUNK_MINI_L6_DIM),
+        Vector(MINI_L6_DIM),
         nullable=False,
     )
