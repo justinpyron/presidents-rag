@@ -149,8 +149,20 @@ def main() -> None:
         choices=MODELS,
         help="Sentence-transformers model name.",
     )
-    parser.add_argument("-cs", "--chunk-size", type=int, default=900)
-    parser.add_argument("-co", "--chunk-overlap", type=int, default=300)
+    parser.add_argument(
+        "-cs",
+        "--chunk-size",
+        type=int,
+        required=True,
+        help="Chunk size for splitting documents.",
+    )
+    parser.add_argument(
+        "-co",
+        "--chunk-overlap",
+        type=int,
+        required=True,
+        help="Number of overlapping tokens between chunks.",
+    )
     parser.add_argument("-b", "--batch-size", type=int, default=64)
     args = parser.parse_args()
 
