@@ -5,16 +5,27 @@ over HTTP. The actual logic lives in ``backend.retrieval``; this module only
 handles model loading, the DB session, and the FastAPI wiring.
 """
 
+import os
+
 import modal
+from dotenv import load_dotenv
+
+load_dotenv()
 
 MODAL_APP_NAME = "presidents-rag"
 MODAL_VOLUME_NAME = "presidents-rag"
-DB_SECRET_NAME = "presidents-rag-db"
 
 SENTENCE_TRANSFORMER_PATH = (
     "/data/weights/sentence-transformers_all-MiniLM-L6-v2"
 )
 CROSS_ENCODER_PATH = "/data/weights/cross-encoder_ms-marco-MiniLM-L-6-v2"
+
+# The runtime queries Postgres through the pooled connection. The value is read
+# from the deploy environment (GitHub secrets in CI, .env locally) and injected
+# into the container, so GitHub remains the single source of truth.
+db_secret = modal.Secret.from_dict(
+    {"DATABASE_URL_POOLED": os.environ["DATABASE_URL_POOLED"]}
+)
 
 app = modal.App(MODAL_APP_NAME)
 image = (
@@ -37,7 +48,7 @@ volume = modal.Volume.from_name(MODAL_VOLUME_NAME)
 @app.cls(
     image=image,
     volumes={"/data": volume},
-    secrets=[modal.Secret.from_name(DB_SECRET_NAME)],
+    secrets=[db_secret],
     cpu=1,
     scaledown_window=600,
 )
