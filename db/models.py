@@ -15,7 +15,6 @@ from sqlalchemy import (
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 MINI_L6_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
-MINI_L6_DIM = 384
 
 ALLOWED_MODEL_NAMES = [
     MINI_L6_MODEL,
@@ -28,7 +27,7 @@ MODEL_WEIGHTS_PATHS: dict[str, str] = {
 
 def get_model_config(model_name: str) -> tuple[type, int]:
     if model_name == MINI_L6_MODEL:
-        return ChunkMiniL6, MINI_L6_DIM
+        return ChunkDim384, 384
     raise ValueError(
         f"Model {model_name!r} is not allowed. "
         f"Choose from: {ALLOWED_MODEL_NAMES}"
@@ -40,7 +39,7 @@ class Base(DeclarativeBase):
 
 
 class VectorStoreConfig(Base):
-    """Configuration for an embedded vector store."""
+    """Configuration for an embedding vector store."""
 
     __tablename__ = "vector_store_configs"
     __table_args__ = (
@@ -64,16 +63,16 @@ class VectorStoreConfig(Base):
     )
 
 
-class ChunkMiniL6(Base):
-    """Document chunks embedded with the all-MiniLM-L6-v2 sentence-transformers model."""
+class ChunkDim384(Base):
+    """Document chunks stored as 384-dimensional embedding vectors."""
 
-    __tablename__ = "chunks_mini_l6"
+    __tablename__ = "chunks_dim_384"
     __table_args__ = (
         UniqueConstraint(
             "vector_store_config_id",
             "source",
             "start_index",
-            name="uq_chunks_mini_l6_vector_store_config_source_start",
+            name="uq_chunks_dim_384_vector_store_config_source_start",
         ),
     )
 
@@ -88,6 +87,6 @@ class ChunkMiniL6(Base):
     start_index: Mapped[int] = mapped_column(Integer, nullable=False)
     text: Mapped[str] = mapped_column(Text, nullable=False)
     embedding: Mapped[list[float]] = mapped_column(
-        Vector(MINI_L6_DIM),
+        Vector(384),
         nullable=False,
     )
