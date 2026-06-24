@@ -39,16 +39,16 @@ class Base(DeclarativeBase):
     pass
 
 
-class StoreRegistry(Base):
-    """Registry of configurations for various embedding vector stores."""
+class VectorStoreConfig(Base):
+    """Configuration for an embedded vector store."""
 
-    __tablename__ = "store_registry"
+    __tablename__ = "vector_store_configs"
     __table_args__ = (
         UniqueConstraint(
             "model_name",
             "chunk_size",
             "chunk_overlap",
-            name="uq_store_registry_model_chunk_params",
+            name="uq_vector_store_configs_model_chunk_params",
         ),
     )
 
@@ -70,17 +70,17 @@ class ChunkMiniL6(Base):
     __tablename__ = "chunks_mini_l6"
     __table_args__ = (
         UniqueConstraint(
-            "store_registry_id",
+            "vector_store_config_id",
             "source",
             "start_index",
-            name="uq_chunks_mini_l6_store_registry_source_start",
+            name="uq_chunks_mini_l6_vector_store_config_source_start",
         ),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    store_registry_id: Mapped[int] = mapped_column(
+    vector_store_config_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("store_registry.id"),
+        ForeignKey("vector_store_configs.id"),
         nullable=False,
         index=True,
     )

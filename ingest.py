@@ -10,12 +10,11 @@ from langchain_community.document_loaders import TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from sentence_transformers import SentenceTransformer
 from sqlalchemy import select
-from sqlalchemy.dialects.postgresql import insert
 
 from db.models import (
     ALLOWED_MODEL_NAMES,
     MODEL_WEIGHTS_PATHS,
-    StoreRegistry,
+    VectorStoreConfig,
     get_model_config,
 )
 from db.session import get_session
@@ -52,22 +51,22 @@ def chunk_txt_files(
     return chunks
 
 
-def assert_registry_not_exists(
+def assert_vector_store_config_not_exists(
     session,
     model_name: str,
     chunk_size: int,
     chunk_overlap: int,
 ) -> None:
     existing = session.execute(
-        select(StoreRegistry).where(
-            StoreRegistry.model_name == model_name,
-            StoreRegistry.chunk_size == chunk_size,
-            StoreRegistry.chunk_overlap == chunk_overlap,
+        select(VectorStoreConfig).where(
+            VectorStoreConfig.model_name == model_name,
+            VectorStoreConfig.chunk_size == chunk_size,
+            VectorStoreConfig.chunk_overlap == chunk_overlap,
         )
     ).scalar_one_or_none()
     if existing is not None:
         raise ValueError(
-            f"A store registry already exists for model_name={model_name!r}, "
+            f"A vector store config already exists for model_name={model_name!r}, "
             f"chunk_size={chunk_size}, chunk_overlap={chunk_overlap}."
         )
 
@@ -94,21 +93,23 @@ def ingest(
 
     session = get_session()
     try:
-        assert_registry_not_exists(
+        # 1. Create vector store config record
+        assert_vector_store_config_not_exists(
             session,
             model_name=model_name,
             chunk_size=chunk_size,
             chunk_overlap=chunk_overlap,
         )
-        registry = StoreRegistry(
+        vector_store_config = VectorStoreConfig(
             model_name=model_name,
             dim=dim,
             chunk_size=chunk_size,
             chunk_overlap=chunk_overlap,
         )
-        session.add(registry)
+        session.add(vector_store_config)
         session.flush()
 
+        # 2. Create embedding vector records
         embedder = load_embedding_model(model_name)
         texts = [chunk.text for chunk in chunks]
         embeddings = embedder.encode(
@@ -116,19 +117,19 @@ def ingest(
             batch_size=batch_size,
             show_progress_bar=True,
         )
-        rows = [
-            {
-                "store_registry_id": registry.id,
-                "source": chunk.source,
-                "start_index": chunk.start_index,
-                "text": chunk.text,
-                "embedding": embedding.tolist(),
-            }
+        chunk_records = [
+            chunk_model(
+                vector_store_config_id=vector_store_config.id,
+                source=chunk.source,
+                start_index=chunk.start_index,
+                text=chunk.text,
+                embedding=embedding.tolist(),
+            )
             for chunk, embedding in zip(chunks, embeddings, strict=True)
         ]
-        session.execute(insert(chunk_model), rows)
+        session.add_all(chunk_records)
         session.commit()
-        return len(rows)
+        return len(chunk_records)
     except Exception:
         session.rollback()
         raise
