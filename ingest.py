@@ -6,7 +6,6 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from dotenv import load_dotenv
-from langchain_community.document_loaders import TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from sentence_transformers import SentenceTransformer
 from sqlalchemy import select
@@ -50,8 +49,8 @@ def chunk_txt_files(
     )
     chunks: list[ChunkRecord] = []
     for path in sorted(Path(directory).glob("*.txt")):
-        documents = TextLoader(str(path)).load()
-        for document in text_splitter.split_documents(documents):
+        text = path.read_text(encoding="utf-8")
+        for document in text_splitter.create_documents([text]):
             chunks.append(
                 ChunkRecord(
                     source=path.name,
@@ -162,7 +161,7 @@ def main() -> None:
         "--chunk-overlap",
         type=int,
         required=True,
-        help="Number of overlapping tokens between chunks.",
+        help="Number of overlapping characters between chunks.",
     )
     parser.add_argument("-b", "--batch-size", type=int, default=64)
     args = parser.parse_args()
