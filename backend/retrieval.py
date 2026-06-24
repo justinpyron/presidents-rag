@@ -4,20 +4,16 @@ These functions are intentionally pure: every heavy dependency (DB session,
 embedding model, cross-encoder) is passed in rather than loaded internally, so
 the same code path runs in the Modal server and in the eval harness.
 
-Heavy imports (torch, sqlalchemy, db models) are deferred into the function
-bodies so this module can be imported cheaply -- e.g. the Streamlit client only
-needs ``RetrievedChunk`` for deserialization, not torch or SQLAlchemy.
+torch (a heavy dependency) is imported lazily inside ``retrieve`` since it is
+only needed when actually embedding a query.
 """
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
-
 from pydantic import BaseModel
+from sentence_transformers import CrossEncoder, SentenceTransformer
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
-if TYPE_CHECKING:
-    from sentence_transformers import CrossEncoder, SentenceTransformer
-    from sqlalchemy.orm import Session
+from db.models import ChunkDim384
 
 
 class RetrievedChunk(BaseModel):
@@ -35,7 +31,7 @@ class RetrievedChunk(BaseModel):
     chunk_id: int | None = None
 
 
-class QueryRequest(BaseModel):
+class RetrieveRequest(BaseModel):
     query: str
     vector_store_config_id: int
     top_k: int
@@ -49,8 +45,8 @@ class RerankRequest(BaseModel):
 
 
 def retrieve(
-    session: "Session",
-    embedder: "SentenceTransformer",
+    session: Session,
+    embedder: SentenceTransformer,
     vector_store_config_id: int,
     query: str,
     top_k: int,
@@ -62,38 +58,33 @@ def retrieve(
     higher means more similar.
     """
     import torch
-    from sqlalchemy import select
-
-    from db.models import ChunkDim384
 
     with torch.no_grad():
-        query_embedding = embedder.encode([query])[0]
-    if hasattr(query_embedding, "tolist"):
-        query_embedding = query_embedding.tolist()
+        q_emb = embedder.encode([query])[0].tolist()
 
-    distance = ChunkDim384.embedding.cosine_distance(query_embedding)
-    statement = select(ChunkDim384, distance.label("distance")).where(
-        ChunkDim384.vector_store_config_id == vector_store_config_id
-    )
+    stmt = select(
+        ChunkDim384,
+        ChunkDim384.embedding.cosine_distance(q_emb).label("distance"),
+    ).where(ChunkDim384.vector_store_config_id == vector_store_config_id)
     if source is not None:
-        statement = statement.where(ChunkDim384.source == source)
-    statement = statement.order_by(distance).limit(top_k)
+        stmt = stmt.where(ChunkDim384.source == source)
+    stmt = stmt.order_by("distance").limit(top_k)
 
-    rows = session.execute(statement).all()
+    rows = session.execute(stmt).all()
     return [
         RetrievedChunk(
             source=chunk.source,
             start_index=chunk.start_index,
             text=chunk.text,
-            retrieval_score=1.0 - float(distance_value),
+            retrieval_score=1.0 - float(distance),
             chunk_id=chunk.id,
         )
-        for chunk, distance_value in rows
+        for chunk, distance in rows
     ]
 
 
 def rerank(
-    cross_encoder: "CrossEncoder",
+    cross_encoder: CrossEncoder,
     query: str,
     chunks: list[RetrievedChunk],
     top_k: int,
@@ -106,7 +97,7 @@ def rerank(
     if not chunks:
         return []
 
-    ranks = cross_encoder.rank(query, [chunk.text for chunk in chunks])
+    ranks = cross_encoder.rank(query, [c.text for c in chunks])
     return [
         chunks[row["corpus_id"]].model_copy(
             update={"rerank_score": float(row["score"])}
