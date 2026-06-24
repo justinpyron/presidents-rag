@@ -1,6 +1,7 @@
 """Chunk documents, embed them, and load into the vector store database."""
 
 import argparse
+import time
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -166,6 +167,7 @@ def main() -> None:
     parser.add_argument("-b", "--batch-size", type=int, default=64)
     args = parser.parse_args()
 
+    start_time = time.time()
     num_chunks = ingest(
         directory=args.directory,
         model_name=args.model,
@@ -173,7 +175,10 @@ def main() -> None:
         chunk_overlap=args.chunk_overlap,
         batch_size=args.batch_size,
     )
-    print(f"Ingested {num_chunks} chunks from {args.directory}")
+    elapsed = time.time() - start_time
+    print(
+        f"Ingested {num_chunks} chunks from {args.directory} in {elapsed:.1f}s"
+    )
 
 
 if __name__ == "__main__":
