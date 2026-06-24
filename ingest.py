@@ -51,26 +51,6 @@ def chunk_txt_files(
     return chunks
 
 
-def assert_vector_store_config_not_exists(
-    session,
-    model_name: str,
-    chunk_size: int,
-    chunk_overlap: int,
-) -> None:
-    existing = session.execute(
-        select(VectorStoreConfig).where(
-            VectorStoreConfig.model_name == model_name,
-            VectorStoreConfig.chunk_size == chunk_size,
-            VectorStoreConfig.chunk_overlap == chunk_overlap,
-        )
-    ).scalar_one_or_none()
-    if existing is not None:
-        raise ValueError(
-            f"A vector store config already exists for model_name={model_name!r}, "
-            f"chunk_size={chunk_size}, chunk_overlap={chunk_overlap}."
-        )
-
-
 def load_embedding_model(model_name: str) -> SentenceTransformer:
     weights_path = MODEL_WEIGHTS_PATHS.get(model_name, model_name)
     if os.path.isdir(weights_path):
@@ -94,12 +74,18 @@ def ingest(
     session = get_session()
     try:
         # 1. Create vector store config record
-        assert_vector_store_config_not_exists(
-            session,
-            model_name=model_name,
-            chunk_size=chunk_size,
-            chunk_overlap=chunk_overlap,
-        )
+        existing = session.execute(
+            select(VectorStoreConfig).where(
+                VectorStoreConfig.model_name == model_name,
+                VectorStoreConfig.chunk_size == chunk_size,
+                VectorStoreConfig.chunk_overlap == chunk_overlap,
+            )
+        ).scalar_one_or_none()
+        if existing is not None:
+            raise ValueError(
+                f"A vector store config already exists for model_name={model_name!r}, "
+                f"chunk_size={chunk_size}, chunk_overlap={chunk_overlap}."
+            )
         vector_store_config = VectorStoreConfig(
             model_name=model_name,
             dim=dim,
