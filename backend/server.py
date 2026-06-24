@@ -63,12 +63,11 @@ class Server:
     def fastapi_server(self):
         from fastapi import FastAPI
 
-        from backend.retrieval import (
+        from backend.retrieval import rerank, retrieve
+        from backend.schemas import (
             RerankRequest,
             RetrievedChunk,
             RetrieveRequest,
-            rerank,
-            retrieve,
         )
         from db.session import get_session
 
