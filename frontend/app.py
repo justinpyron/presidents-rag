@@ -1,6 +1,6 @@
 import streamlit as st
 
-from backend import PresidentsRAG
+from frontend.client import RAGClient
 
 how_it_works = """
 This app uses **Retrieval Augmented Generation (RAG)** to answer questions using a knowledge base of Wikipedia articles about US Presidents and Secretaries of State.
@@ -29,23 +29,27 @@ View the [full implementation on GitHub](https://github.com/justinpyron/presiden
 
 
 @st.cache_resource
-def load_rag() -> PresidentsRAG:
-    return PresidentsRAG()
+def load_rag_client() -> RAGClient:
+    return RAGClient()
 
 
-st.set_page_config(page_title="Presidents RAG", layout="centered", page_icon="🇺🇸")
-rag = load_rag()
+st.set_page_config(
+    page_title="Presidents RAG", layout="centered", page_icon="🇺🇸"
+)
+rag_client = load_rag_client()
 st.title("US Presidents RAG 🇺🇸")
 with st.expander("How it works"):
     st.markdown(how_it_works)
 query = st.text_area("Ask a question", "")
 if st.button("Submit", type="primary", use_container_width=True):
     with st.spinner("Searching docs + writing answer..."):
-        answer, ids, documents = rag.ask(query)
+        answer, chunks = rag_client.ask(query)
     st.write(answer)
     with st.expander("Sources"):
         pretty_docs = [
-            f"### Document {i+1}\n##### `{id.split(':')[0]}` -- `starting @ character {id.split(':')[-1]}`\n{doc}"
-            for i, (id, doc) in enumerate(zip(ids, documents))
+            f"### Document {i+1}\n"
+            f"##### `{chunk.source}` -- `starting @ character {chunk.start_index}`\n"
+            f"{chunk.text}"
+            for i, chunk in enumerate(chunks)
         ]
         st.markdown("\n\n".join(pretty_docs))
