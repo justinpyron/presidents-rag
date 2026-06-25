@@ -20,7 +20,6 @@ class RetrievedChunk(BaseModel):
 
 class RetrieveRequest(BaseModel):
     query: str
-    vector_store_config_id: int
     top_k: int
     source: str | None = None
 
