@@ -12,15 +12,13 @@ __pycache__/
 .gitignore
 .gitattributes
 
-# Poetry
-pyproject.toml
-poetry.lock
+# Lock files (pyproject.toml is required for pip install in the image)
+uv.lock
 
 # Pre-commit
 .pre-commit-config.yaml
 
 # Documentation
-README.md
 *.md
 
 # GitHub

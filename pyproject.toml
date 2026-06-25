@@ -6,7 +6,6 @@ build-backend = "hatchling.build"
 name = "presidents-rag"
 version = "0.1.0"
 description = ""
-readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "httpx>=0.28.1",
