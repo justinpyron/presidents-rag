@@ -10,7 +10,6 @@ env:
   IMAGE_NAME: ${{ vars.IMAGE_NAME }}
   CLOUD_RUN_SERVICE: ${{ vars.CLOUD_RUN_SERVICE }}
   SERVER_URL: ${{ vars.SERVER_URL }}
-  VECTOR_STORE_CONFIG_ID: ${{ vars.VECTOR_STORE_CONFIG_ID }}
   OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
 
 jobs:
@@ -117,4 +116,3 @@ jobs:
             SERVER_URL=${{ env.SERVER_URL }}
             OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
             OPENAI_MODEL=${{ env.OPENAI_MODEL }}
-            VECTOR_STORE_CONFIG_ID=${{ env.VECTOR_STORE_CONFIG_ID }}

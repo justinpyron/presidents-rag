@@ -11,7 +11,6 @@ load_dotenv()
 
 API_KEY = os.environ["OPENAI_API_KEY"]
 SERVER_URL = os.environ["SERVER_URL"]
-VECTOR_STORE_CONFIG_ID = int(os.environ["VECTOR_STORE_CONFIG_ID"])
 OPENAI_MODEL = os.environ["OPENAI_MODEL"]
 PROMPT_TEMPLATE = """
 # ROLE
@@ -52,14 +51,12 @@ class RAGClient:
         self,
         query: str,
         top_k: int,
-        vector_store_config_id: int,
         source: str | None = None,
     ) -> list[RetrievedChunk]:
         response = self.http_client.post(
             "/retrieve",
             json={
                 "query": query,
-                "vector_store_config_id": vector_store_config_id,
                 "top_k": top_k,
                 "source": source,
             },
@@ -99,7 +96,6 @@ class RAGClient:
     def ask(
         self,
         query: str,
-        vector_store_config_id: int = VECTOR_STORE_CONFIG_ID,
         source: str | None = None,
         top_k_retrieval: int = 100,
         top_k_rerank: int = 20,
@@ -107,7 +103,6 @@ class RAGClient:
         chunks = self.retrieve(
             query=query,
             top_k=top_k_retrieval,
-            vector_store_config_id=vector_store_config_id,
             source=source,
         )
         top_chunks = self.rerank(query, chunks, top_k_rerank)
