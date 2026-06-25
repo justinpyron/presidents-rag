@@ -42,8 +42,7 @@ DOCUMENT {{ loop.index }}
 """
 
 
-# TODO: Rename to RAGClient
-class PresidentsRAG:
+class RAGClient:
     def __init__(self) -> None:
         self.http_client = httpx.Client(base_url=SERVER_URL, timeout=30.0)
         self.prompt_template = jinja2.Template(PROMPT_TEMPLATE)
