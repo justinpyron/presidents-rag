@@ -89,7 +89,7 @@ class RAGClient:
         response = self.openai_client.responses.create(
             model=OPENAI_MODEL,
             input=prompt,
-            reasoning={"effort": "minimal"},
+            reasoning={"effort": "low"},
         )
         return response.output[1].content[0].text
 
