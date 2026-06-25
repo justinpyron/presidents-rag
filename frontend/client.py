@@ -117,6 +117,3 @@ class RAGClient:
         )
         answer = self.ping_openai(prompt)
         return answer, top_chunks
-
-
-# TODO: Rename this module to rag_client.py?
