@@ -12,7 +12,7 @@ load_dotenv()
 API_KEY = os.environ["OPENAI_API_KEY"]
 SERVER_URL = os.environ["SERVER_URL"]
 VECTOR_STORE_CONFIG_ID = int(os.environ["VECTOR_STORE_CONFIG_ID"])
-OPENAI_MODEL = "gpt-5-mini-2025-08-07"
+OPENAI_MODEL = os.environ["OPENAI_MODEL"]
 PROMPT_TEMPLATE = """
 # ROLE
 You are a skilled question-answering assistant.
