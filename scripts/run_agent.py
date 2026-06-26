@@ -18,7 +18,7 @@ logfire.configure(
     environment=os.getenv("LOGFIRE_ENV", "dev"),
 )
 
-INDENT = "  "
+INDENT = " " * 4
 DIVIDER = "─" * 80
 
 
@@ -72,10 +72,10 @@ def main() -> None:
 
         if chunks:
             print()
-            print(DIVIDER)
-            print()
             _print_sources(chunks)
 
+        print()
+        print(DIVIDER)
         print()
 
 
