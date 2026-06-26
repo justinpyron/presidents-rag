@@ -6,7 +6,7 @@ import sys
 import logfire
 from dotenv import load_dotenv
 
-from evals.datasets.retrieval import retrieval_dataset
+from evals.datasets.dataset_retrieval import retrieval_dataset
 from evals.tasks import make_retrieval_task
 
 
