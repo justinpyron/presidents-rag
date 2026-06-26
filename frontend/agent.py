@@ -20,6 +20,7 @@ from dataclasses import dataclass, field
 
 from pydantic import BaseModel, Field
 from pydantic_ai import Agent, RunContext
+from pydantic_ai.capabilities import Instrumentation
 from pydantic_ai.settings import ModelSettings
 from pydantic_ai.usage import UsageLimits
 
@@ -108,6 +109,7 @@ agent = Agent(
     output_type=AgentResponse,
     model_settings=ModelSettings(parallel_tool_calls=False),
     system_prompt=SYSTEM_PROMPT,
+    capabilities=[Instrumentation()],
 )
 
 
