@@ -12,8 +12,8 @@ Design notes:
   the model echoes back.
 - The structured output cites supporting chunks by ``chunk_id`` (the
   ``ChunkDim384.id`` primary key) rather than re-emitting text, so citations
-  can't drift from the source. ``ask_agentic`` resolves those ids back to full
-  ``RetrievedChunk`` objects for the UI.
+  can't drift from the source. ``parse_agent_run`` resolves those ids back to
+  full ``RetrievedChunk`` objects for the UI.
 """
 
 from dataclasses import dataclass, field
@@ -21,6 +21,7 @@ from dataclasses import dataclass, field
 from pydantic import BaseModel, Field
 from pydantic_ai import Agent, RunContext
 from pydantic_ai.capabilities import Instrumentation
+from pydantic_ai.run import AgentRunResult
 from pydantic_ai.settings import ModelSettings
 from pydantic_ai.usage import UsageLimits
 
@@ -136,23 +137,15 @@ def search_knowledge_base(
     ]
 
 
-def ask_agentic(
-    query: str,
-    client: RAGClient | None = None,
-) -> tuple[AgentResponse, list[RetrievedChunk]]:
-    """Run the agentic RAG loop and resolve cited chunks for display."""
-    deps = AgentDeps(client=client or RAGClient())
-    result = agent.run_sync(
-        query,
-        deps=deps,
-        usage_limits=UsageLimits(request_limit=REQUEST_LIMIT),
-    )
+def parse_agent_run(
+    result: AgentRunResult[AgentResponse],
+    deps: AgentDeps,
+) -> tuple[str, list[RetrievedChunk]]:
+    """Resolve the answer and cited chunks for display."""
     response = result.output
-    supporting = [
+    chunks = [
         deps.seen[chunk_id]
         for chunk_id in response.supporting_chunk_ids
         if chunk_id in deps.seen
     ]
-    if not supporting:
-        supporting = list(deps.seen.values())
-    return response, supporting
+    return response.answer, chunks
