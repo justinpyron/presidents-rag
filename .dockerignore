@@ -44,6 +44,5 @@ dist/
 build/
 *.egg-info/
 
-# Unnecessary at runtime (scraped data is already in text/)
-scrape_wikipedia.py
-people.py
+# Unnecessary at runtime
+scripts/
