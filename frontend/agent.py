@@ -140,12 +140,7 @@ def ask_agentic(
     query: str,
     client: RAGClient | None = None,
 ) -> tuple[AgentResponse, list[RetrievedChunk]]:
-    """Run the agentic RAG loop and resolve cited chunks for display.
-
-    Returns the structured ``AgentResponse`` plus the full ``RetrievedChunk``
-    objects the answer is based on. Falls back to every chunk seen during the
-    run if the model cited none.
-    """
+    """Run the agentic RAG loop and resolve cited chunks for display."""
     deps = AgentDeps(client=client or RAGClient())
     result = agent.run_sync(
         query,
