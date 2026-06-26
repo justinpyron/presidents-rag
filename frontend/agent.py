@@ -28,6 +28,8 @@ from frontend.client import RAGClient
 
 MODEL = "openai:gpt-5.4-mini"
 REQUEST_LIMIT = 8
+TOP_K_RETRIEVAL = 50
+TOP_K_RERANK = 10
 
 SYSTEM_PROMPT = """
 You are a research assistant answering questions about US Presidents and
@@ -95,8 +97,8 @@ class AgentDeps:
     """
 
     client: RAGClient
-    top_k_retrieval: int = 100  # TODO: Make a global config
-    top_k_rerank: int = 20  # TODO: Make a global config
+    top_k_retrieval: int = TOP_K_RETRIEVAL
+    top_k_rerank: int = TOP_K_RERANK
     seen: dict[int, RetrievedChunk] = field(default_factory=dict)
 
 
