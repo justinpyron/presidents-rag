@@ -18,7 +18,7 @@ Design notes:
 
 from dataclasses import dataclass, field
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from pydantic_ai import Agent, RunContext
 from pydantic_ai.settings import ModelSettings
 from pydantic_ai.usage import UsageLimits
@@ -68,8 +68,22 @@ class ToolChunk(BaseModel):
 class AgentResponse(BaseModel):
     """Structured output of the agentic RAG run."""
 
-    answer: str
-    supporting_chunk_ids: list[int]
+    answer: str = Field(
+        description=(
+            "The final natural-language answer to the user's question, "
+            "grounded strictly in the retrieved chunks. If the knowledge base "
+            "does not contain enough information to answer, say so here instead "
+            "of guessing."
+        ),
+    )
+    supporting_chunk_ids: list[int] = Field(
+        description=(
+            "The chunk_id values of the retrieved chunks that actually support "
+            "the answer. Include only chunks you relied on, omitting any that "
+            "were retrieved but unused. Leave empty if no chunk supports the "
+            "answer."
+        ),
+    )
 
 
 @dataclass
@@ -81,8 +95,8 @@ class AgentDeps:
     """
 
     client: RAGClient
-    top_k_retrieval: int = 100
-    top_k_rerank: int = 20
+    top_k_retrieval: int = 100  # TODO: Make a global config
+    top_k_rerank: int = 20  # TODO: Make a global config
     seen: dict[int, RetrievedChunk] = field(default_factory=dict)
 
 
