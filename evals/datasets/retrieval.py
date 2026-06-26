@@ -3,6 +3,7 @@
 from pydantic_evals import Case, Dataset
 
 from backend.schemas import RetrievedChunk
+from evals.evaluators import HitAtK, PrecisionAtK, RecallAtK
 
 retrieval_dataset = Dataset[str, list[RetrievedChunk]](
     name="retrieval",
@@ -17,5 +18,10 @@ retrieval_dataset = Dataset[str, list[RetrievedChunk]](
             inputs="How did Andrew Jackson's wife die?",
             expected_output=[275],
         ),
+    ],
+    evaluators=[
+        RecallAtK(k=10),
+        PrecisionAtK(k=10),
+        HitAtK(k=10),
     ],
 )
