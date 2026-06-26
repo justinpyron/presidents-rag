@@ -1,6 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-
 from people import PRESIDENTS, SECRETARIES_OF_STATE
 
 BASE_URL = "https://en.wikipedia.org/w/api.php"
@@ -48,7 +47,8 @@ def get_section_indices(pagetitle: str) -> str:
     section_indices = [
         section["index"]
         for section in response["parse"]["sections"]
-        if section["level"] == "2" and section["line"] not in disallowed_section_titles
+        if section["level"] == "2"
+        and section["line"] not in disallowed_section_titles
     ]
     return section_indices
 
@@ -105,7 +105,9 @@ def get_text(
             "format": "json",
         }
         response = requests.get(BASE_URL, params=payload).json()
-        soup_raw = BeautifulSoup(response["parse"]["text"]["*"], features="lxml")
+        soup_raw = BeautifulSoup(
+            response["parse"]["text"]["*"], features="lxml"
+        )
         soup_clean = process_soup(soup_raw)
         text_raw = soup_clean.get_text()
         text_clean = process_text(text_raw)
