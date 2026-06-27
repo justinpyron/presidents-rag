@@ -55,7 +55,7 @@ body { background: #f4efe4; }
 .caret {
   display: inline-block;
   transition: transform .15s ease;
-  font-size: 10px;
+  font-size: 20px;
 }
 .caret.open { transform: rotate(90deg); }
 
