@@ -2,10 +2,9 @@
 
 from pydantic_evals import Case, Dataset
 
-from backend.schemas import RetrievedChunk
 from evals.evaluators import HitAtK, PrecisionAtK, RecallAtK
 
-retrieval_dataset = Dataset[str, list[RetrievedChunk]](
+retrieval_dataset = Dataset[str, list[int]](
     name="retrieval",
     cases=[
         Case(

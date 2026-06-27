@@ -4,7 +4,6 @@ from collections.abc import Callable
 
 from pydantic_ai.usage import UsageLimits
 
-from backend.schemas import RetrievedChunk
 from evals.schemas import GenerationResult
 from frontend.agent import REQUEST_LIMIT, AgentDeps, agent, parse_agent_run
 from frontend.client import RAGClient
@@ -13,18 +12,18 @@ from frontend.client import RAGClient
 def make_retrieval_task(
     top_k_retrieval: int,
     top_k_rerank: int,
-) -> Callable[[str], list[RetrievedChunk]]:
+) -> Callable[[str], list[int]]:
     """Return a task that runs retrieve → rerank for a single query."""
     rag_client = RAGClient()
 
-    def task(query: str) -> list[RetrievedChunk]:
+    def task(query: str) -> list[int]:
         chunks = rag_client.retrieve(query, top_k=top_k_retrieval)
-        return rag_client.rerank(query, chunks, top_k_rerank)
+        ranked = rag_client.rerank(query, chunks, top_k_rerank)
+        return [
+            chunk.chunk_id for chunk in ranked if chunk.chunk_id is not None
+        ]
 
     return task
-
-
-# TODO: Update signature. Should return list[int]
 
 
 def make_generation_task(

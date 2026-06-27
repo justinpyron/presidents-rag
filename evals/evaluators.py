@@ -24,28 +24,24 @@ from evals.schemas import GenerationResult
 
 
 def _hits_at_k(
-    ranked: list[RetrievedChunk],
+    ranked_chunk_ids: list[int],
     relevant_chunk_ids: list[int] | None,
     k: int,
 ) -> tuple[int, int]:
     """Return the number of relevant hits and the size of the gold set."""
     relevant = set(relevant_chunk_ids or [])
-    top_k_ids = {
-        chunk.chunk_id for chunk in ranked[:k] if chunk.chunk_id is not None
-    }
+    top_k_ids = set(ranked_chunk_ids[:k])
     return len(relevant & top_k_ids), len(relevant)
 
 
 @dataclass
-class RecallAtK(Evaluator[str, list[RetrievedChunk]]):
+class RecallAtK(Evaluator[str, list[int]]):
     k: int
 
     def get_default_evaluation_name(self) -> str:
         return f"recall@{self.k}"
 
-    def evaluate(
-        self, ctx: EvaluatorContext[str, list[RetrievedChunk]]
-    ) -> float:
+    def evaluate(self, ctx: EvaluatorContext[str, list[int]]) -> float:
         hits, num_relevant = _hits_at_k(
             ctx.output, ctx.expected_output, self.k
         )
@@ -55,29 +51,25 @@ class RecallAtK(Evaluator[str, list[RetrievedChunk]]):
 
 
 @dataclass
-class PrecisionAtK(Evaluator[str, list[RetrievedChunk]]):
+class PrecisionAtK(Evaluator[str, list[int]]):
     k: int
 
     def get_default_evaluation_name(self) -> str:
         return f"precision@{self.k}"
 
-    def evaluate(
-        self, ctx: EvaluatorContext[str, list[RetrievedChunk]]
-    ) -> float:
+    def evaluate(self, ctx: EvaluatorContext[str, list[int]]) -> float:
         hits, _ = _hits_at_k(ctx.output, ctx.expected_output, self.k)
         return hits / self.k
 
 
 @dataclass
-class HitAtK(Evaluator[str, list[RetrievedChunk]]):
+class HitAtK(Evaluator[str, list[int]]):
     k: int
 
     def get_default_evaluation_name(self) -> str:
         return f"hit@{self.k}"
 
-    def evaluate(
-        self, ctx: EvaluatorContext[str, list[RetrievedChunk]]
-    ) -> bool:
+    def evaluate(self, ctx: EvaluatorContext[str, list[int]]) -> bool:
         hits, num_relevant = _hits_at_k(
             ctx.output, ctx.expected_output, self.k
         )
