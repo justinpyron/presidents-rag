@@ -18,6 +18,10 @@ from pydantic_evals.evaluators.llm_as_a_judge import (
 from backend.schemas import RetrievedChunk
 from evals.schemas import GenerationResult
 
+# ===========================================================================
+# Retrieval
+# ===========================================================================
+
 
 def _hits_at_k(
     ranked: list[RetrievedChunk],
@@ -80,6 +84,11 @@ class HitAtK(Evaluator[str, list[RetrievedChunk]]):
         if num_relevant == 0:
             return False
         return hits > 0
+
+
+# ===========================================================================
+# Generation
+# ===========================================================================
 
 
 def _faithfulness_inputs(question: str, chunks: list[RetrievedChunk]) -> str:
