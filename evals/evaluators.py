@@ -96,8 +96,7 @@ def _faithfulness_inputs(question: str, chunks: list[RetrievedChunk]) -> str:
         documents = "No documents retrieved"
     else:
         documents = "\n\n".join(
-            f"### Document {index}:\n{chunk.text}"
-            for index, chunk in enumerate(chunks, start=1)
+            f"### Document {chunk.chunk_id}\n{chunk.text}" for chunk in chunks
         )
     return f"## Question\n{question}\n\n## Retrieved documents\n{documents}"
 
