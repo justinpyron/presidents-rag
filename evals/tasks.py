@@ -24,6 +24,9 @@ def make_retrieval_task(
     return task
 
 
+# TODO: Update signature. Should return list[int]
+
+
 def make_generation_task(
     top_k_retrieval: int,
     top_k_rerank: int,
