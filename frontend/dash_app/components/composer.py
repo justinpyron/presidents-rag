@@ -5,7 +5,6 @@ from dash import dcc, html
 from frontend.dash_app import theme as t
 from frontend.dash_app.config import (
     COMPOSER_PLACEHOLDER,
-    DISCLAIMER,
     ID,
     MODELS,
     SOURCES,
@@ -323,23 +322,11 @@ def composer(selected_model_id: str) -> html.Div:
     return html.Div(
         style={
             "flex": "none",
-            "padding": "14px 24px 22px",
+            "padding": "22px 24px 18px",
             "background": t.PAPER,
         },
         children=html.Div(
             style={"maxWidth": "760px", "margin": "0 auto"},
-            children=[
-                box,
-                html.Div(
-                    DISCLAIMER,
-                    style={
-                        "textAlign": "center",
-                        "fontFamily": t.SANS,
-                        "fontSize": "12px",
-                        "color": t.MUTED_SOFT,
-                        "marginTop": "9px",
-                    },
-                ),
-            ],
+            children=box,
         ),
     )

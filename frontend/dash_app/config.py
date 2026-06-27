@@ -30,9 +30,6 @@ EXAMPLE_PROMPTS = [
 ]
 
 COMPOSER_PLACEHOLDER = "Ask about any U.S. president…"
-DISCLAIMER = (
-    "Answers are drawn from encyclopedia articles. Verify important facts."
-)
 LOADING_TEXT = "Searching the archive"
 ABSTAIN_TEXT = "No grounded sources matched this question."
 ERROR_TEXT = (
