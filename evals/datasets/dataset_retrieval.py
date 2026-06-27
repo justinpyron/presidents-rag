@@ -25,3 +25,5 @@ retrieval_dataset = Dataset[str, list[RetrievedChunk]](
         HitAtK(k=10),
     ],
 )
+
+# TODO: Expand this stubbed dataset with more cases.
