@@ -71,8 +71,15 @@ body { background: #f4efe4; }
 
 .menu-row:hover { background: #f5eeddb0 !important; }
 
-.send-btn { transition: background .12s ease; }
-.send-btn:hover { background: #6b332d; }
+/* Muted by default (composer empty = not valid to submit); the .active class
+   is toggled on by a clientside callback as soon as there's input. */
+.send-btn {
+  background: #b8958c;
+  cursor: default;
+  transition: background .15s ease;
+}
+.send-btn.active { background: #7c3b34; cursor: pointer; }
+.send-btn.active:hover { background: #6b332d; }
 
 /* --- Scrollbar --- */
 #chat-scroll::-webkit-scrollbar { width: 10px; }

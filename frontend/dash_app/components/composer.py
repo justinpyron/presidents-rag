@@ -252,19 +252,19 @@ def _send_button() -> html.Div:
         "↑",
         id=ID.SEND,
         n_clicks=0,
+        # Background + cursor live in app.css so the .active class can reflect
+        # whether the composer has input (set by a clientside callback).
         className="send-btn",
         style={
             "flex": "none",
             "width": "34px",
             "height": "34px",
             "borderRadius": "50%",
-            "background": t.ACCENT,
             "color": t.ON_ACCENT,
             "display": "flex",
             "alignItems": "center",
             "justifyContent": "center",
             "fontSize": "16px",
-            "cursor": "pointer",
         },
     )
 

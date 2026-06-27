@@ -233,3 +233,16 @@ clientside_callback(
     Input(ID.INPUT, "value"),
     prevent_initial_call=True,
 )
+
+# --- Clientside: send button reflects whether the composer has input ---------
+clientside_callback(
+    """
+    function(value) {
+        const hasText = !!(value && value.trim().length > 0);
+        return hasText ? "send-btn active" : "send-btn";
+    }
+    """,
+    Output(ID.SEND, "className"),
+    Input(ID.INPUT, "value"),
+    prevent_initial_call=True,
+)

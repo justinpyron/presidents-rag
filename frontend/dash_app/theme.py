@@ -28,6 +28,7 @@ MUTED_WARM = "#7c6f5b"
 
 ACCENT = "#7c3b34"  # maroon
 ACCENT_HOVER = "#6b332d"
+ACCENT_MUTED = "#b8958c"  # empty-composer send button (see app.css)
 ACCENT_SOFT = "#b58c84"  # subtle arrows
 ON_ACCENT = "#f6efe2"  # text on maroon
 
