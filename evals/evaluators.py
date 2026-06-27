@@ -1,10 +1,22 @@
 """Evaluators for retrieval and generation experiments."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
-from pydantic_evals.evaluators import Evaluator, EvaluatorContext
+from pydantic_ai import models
+from pydantic_ai.settings import ModelSettings
+from pydantic_evals.evaluators import (
+    EvaluationReason,
+    Evaluator,
+    EvaluatorContext,
+)
+from pydantic_evals.evaluators.llm_as_a_judge import (
+    GradingOutput,
+    judge_input_output,
+    judge_input_output_expected,
+)
 
 from backend.schemas import RetrievedChunk
+from evals.schemas import GenerationResult
 
 
 def _hits_at_k(
@@ -68,3 +80,101 @@ class HitAtK(Evaluator[str, list[RetrievedChunk]]):
         if num_relevant == 0:
             return False
         return hits > 0
+
+
+def _format_retrieved_chunks(chunks: list[RetrievedChunk]) -> str:
+    if not chunks:
+        return "(no documents retrieved)"
+    parts: list[str] = []
+    for index, chunk in enumerate(chunks, start=1):
+        header = f"[{index}] {chunk.source} (chunk_id={chunk.chunk_id})"
+        parts.append(f"{header}\n{chunk.text}")
+    return "\n\n".join(parts)
+
+
+def _faithfulness_inputs(question: str, chunks: list[RetrievedChunk]) -> str:
+    return (
+        f"Question: {question}\n\n"
+        f"Retrieved documents:\n{_format_retrieved_chunks(chunks)}"
+    )
+
+
+def _grading_to_reason(grading: GradingOutput) -> EvaluationReason:
+    return EvaluationReason(value=grading.pass_, reason=grading.reason)
+
+
+DEFAULT_RELEVANCE_RUBRIC = (
+    "The response directly addresses the question that was asked."
+)
+DEFAULT_CORRECTNESS_RUBRIC = (
+    "The response is factually correct and consistent with the expected key "
+    "facts. Minor wording differences are acceptable."
+)
+DEFAULT_FAITHFULNESS_RUBRIC = (
+    "Every factual claim in the response is supported by the retrieved "
+    "documents. Claims that rely on general knowledge outside the retrieved "
+    "documents should fail."
+)
+
+
+@dataclass
+class Relevance(Evaluator[str, GenerationResult]):
+    rubric: str = DEFAULT_RELEVANCE_RUBRIC
+    model: models.Model | models.KnownModelName | str | None = None
+    model_settings: ModelSettings | None = None
+
+    async def evaluate(
+        self, ctx: EvaluatorContext[str, GenerationResult]
+    ) -> EvaluationReason:
+        grading = await judge_input_output(
+            ctx.inputs,
+            ctx.output.answer,
+            self.rubric,
+            self.model,
+            self.model_settings,
+        )
+        return _grading_to_reason(grading)
+
+
+@dataclass
+class Correctness(Evaluator[str, GenerationResult]):
+    rubric: str = DEFAULT_CORRECTNESS_RUBRIC
+    model: models.Model | models.KnownModelName | str | None = None
+    model_settings: ModelSettings | None = None
+
+    async def evaluate(
+        self, ctx: EvaluatorContext[str, GenerationResult]
+    ) -> EvaluationReason:
+        if ctx.expected_output is None:
+            return EvaluationReason(
+                value=False,
+                reason="No expected output provided for this case.",
+            )
+        grading = await judge_input_output_expected(
+            ctx.inputs,
+            ctx.output.answer,
+            ctx.expected_output,
+            self.rubric,
+            self.model,
+            self.model_settings,
+        )
+        return _grading_to_reason(grading)
+
+
+@dataclass
+class Faithfulness(Evaluator[str, GenerationResult]):
+    rubric: str = DEFAULT_FAITHFULNESS_RUBRIC
+    model: models.Model | models.KnownModelName | str | None = None
+    model_settings: ModelSettings | None = field(default=None)
+
+    async def evaluate(
+        self, ctx: EvaluatorContext[str, GenerationResult]
+    ) -> EvaluationReason:
+        grading = await judge_input_output(
+            _faithfulness_inputs(ctx.inputs, ctx.output.retrieved_chunks),
+            ctx.output.answer,
+            self.rubric,
+            self.model,
+            self.model_settings,
+        )
+        return _grading_to_reason(grading)

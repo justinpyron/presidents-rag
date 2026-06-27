@@ -2,6 +2,7 @@
 
 from pydantic_evals import Case, Dataset
 
+from evals.evaluators import Correctness, Faithfulness, Relevance
 from evals.schemas import GenerationResult
 
 generation_dataset = Dataset[str, GenerationResult](
@@ -18,6 +19,11 @@ generation_dataset = Dataset[str, GenerationResult](
             expected_output="Rachel Jackson died of a stroke or heart attack.",
         ),
     ],
+    evaluators=[
+        Relevance(),
+        Correctness(),
+        Faithfulness(),
+    ],
 )
 
-# TODO: Expand this stubbed dataset with more cases and add evaluators.
+# TODO: Expand this stubbed dataset with more cases.
