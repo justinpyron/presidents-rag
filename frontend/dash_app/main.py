@@ -13,13 +13,24 @@ in the model picker additionally need ``ANTHROPIC_API_KEY`` / ``GEMINI_API_KEY``
 import os
 from pathlib import Path
 
+import logfire
 from dash import Dash, dcc, html
+from dotenv import load_dotenv
 
 from frontend.dash_app import theme as t
 from frontend.dash_app.components.composer import composer
 from frontend.dash_app.components.header import header
 from frontend.dash_app.components.welcome import welcome
 from frontend.dash_app.config import APP_NAME, DEFAULT_MODEL_ID, ID
+
+# Configure logfire before the app is built so the agent's instrumentation
+# (frontend.agent's Instrumentation capability) is exported on every run.
+# Runs at import time so it applies under both `python -m` and a WSGI server.
+load_dotenv()
+logfire.configure(
+    service_name="presidents-rag",
+    environment=os.getenv("LOGFIRE_ENV", "dev"),
+)
 
 FONTS = (
     "https://fonts.googleapis.com/css2?"
