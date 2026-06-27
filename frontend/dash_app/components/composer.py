@@ -259,7 +259,7 @@ def _send_button() -> html.Div:
             "flex": "none",
             "width": "34px",
             "height": "34px",
-            "borderRadius": "50%",
+            "borderRadius": "10px",
             "color": t.ON_ACCENT,
             "display": "flex",
             "alignItems": "center",
