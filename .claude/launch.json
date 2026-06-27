@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "presidential-archive",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-lc", "DASH_DEBUG=0 uv run python -m frontend.dash_app.main"],
+      "port": 8050
+    }
+  ]
+}
