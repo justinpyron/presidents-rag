@@ -5,6 +5,8 @@ from pydantic_evals import Case, Dataset
 from evals.evaluators import Correctness, Faithfulness, Relevance
 from evals.schemas import GenerationResult
 
+JUDGE_MODEL = "openai:gpt-5.4-mini"
+
 generation_dataset = Dataset[str, GenerationResult](
     name="generation",
     cases=[
@@ -20,9 +22,9 @@ generation_dataset = Dataset[str, GenerationResult](
         ),
     ],
     evaluators=[
-        Relevance(),
-        Correctness(),
-        Faithfulness(),
+        Relevance(model=JUDGE_MODEL),
+        Correctness(model=JUDGE_MODEL),
+        Faithfulness(model=JUDGE_MODEL),
     ],
 )
 

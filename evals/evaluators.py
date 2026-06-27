@@ -82,21 +82,15 @@ class HitAtK(Evaluator[str, list[RetrievedChunk]]):
         return hits > 0
 
 
-def _format_retrieved_chunks(chunks: list[RetrievedChunk]) -> str:
-    if not chunks:
-        return "(no documents retrieved)"
-    parts: list[str] = []
-    for index, chunk in enumerate(chunks, start=1):
-        header = f"[{index}] {chunk.source} (chunk_id={chunk.chunk_id})"
-        parts.append(f"{header}\n{chunk.text}")
-    return "\n\n".join(parts)
-
-
 def _faithfulness_inputs(question: str, chunks: list[RetrievedChunk]) -> str:
-    return (
-        f"Question: {question}\n\n"
-        f"Retrieved documents:\n{_format_retrieved_chunks(chunks)}"
-    )
+    if not chunks:
+        documents = "No documents retrieved"
+    else:
+        documents = "\n\n".join(
+            f"### Document {index}:\n{chunk.text}"
+            for index, chunk in enumerate(chunks, start=1)
+        )
+    return f"## Question\n{question}\n\n## Retrieved documents\n{documents}"
 
 
 def _grading_to_reason(grading: GradingOutput) -> EvaluationReason:
