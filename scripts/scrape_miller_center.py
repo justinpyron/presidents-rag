@@ -142,9 +142,12 @@ def main() -> None:
                 f"[{count:4}/{total}] Scraping... "
                 f"{president['name']:25} / {subpage}"
             )
-            article = scrape_article(president["link"], subpage)
-            output_path = output_dir / filename
-            output_path.write_text(article["text"])
+            try:
+                article = scrape_article(president["link"], subpage)
+                output_path = output_dir / filename
+                output_path.write_text(article["text"])
+            except Exception as e:
+                print(f"  ERROR: {e}")
             time.sleep(REQUEST_DELAY_SECONDS)
 
 
