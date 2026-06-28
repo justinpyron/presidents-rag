@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup, Tag
 BASE_URL = "https://millercenter.org"
 PRESIDENTS_LIST_PATH = Path(__file__).parent / "miller_center_presidents.json"
 TEXT_DIR = Path(__file__).parent.parent / "text"
-REQUEST_DELAY_SECONDS = 1.0
+REQUEST_DELAY_SECONDS = 2.0
 
 SUBPAGES = [
     "life-in-brief",
