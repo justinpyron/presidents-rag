@@ -25,12 +25,33 @@ from frontend.dash_app.config import (
 )
 
 
-def prettify_source(source: str) -> str:
-    """Turn a ``source`` slug into a display name.
+def _prettify_miller_center_document(name: str) -> str:
+    """Format a Miller Center filename stem as a readable title.
 
-    e.g. ``andrew_johnson.txt`` -> ``Andrew Johnson``.
+    Mirrors ``build_filename`` in ``scripts/scrape_miller_center.py``:
+    ``{number}_{president}_{subpage_index}_{subpage}``
     """
-    name = source[:-4] if source.lower().endswith(".txt") else source
+    parts = name.split("_")
+    if len(parts) < 4 or not parts[0].isdigit() or not parts[-2].isdigit():
+        return name.replace("_", " ").replace("-", " ").strip().title()
+
+    president = "_".join(parts[1:-2])
+    subpage = parts[-1]
+    text = f"{president} {subpage}".replace("_", " ").replace("-", " ")
+    return text.strip().title()
+
+
+def prettify_source(document: str, collection: str | None = None) -> str:
+    """Turn a document filename into a display name.
+
+    Wikipedia: ``andrew_johnson.txt`` -> ``Andrew Johnson``.
+
+    Miller Center: ``10_john_tyler_5_life-after-the-presidency.txt`` ->
+    ``John Tyler Life After The Presidency``.
+    """
+    name = document[:-4] if document.lower().endswith(".txt") else document
+    if collection == "miller_center":
+        return _prettify_miller_center_document(name)
     return name.replace("_", " ").strip().title()
 
 
@@ -47,7 +68,7 @@ class SourceView:
     def from_chunk(cls, n: int, chunk: RetrievedChunk) -> "SourceView":
         return cls(
             n=n,
-            name=prettify_source(chunk.document),
+            name=prettify_source(chunk.document, chunk.source),
             collection=source_collection_name(chunk.source),
             excerpt=chunk.text.strip(),
         )
