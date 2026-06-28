@@ -1,9 +1,11 @@
+from pathlib import Path
+
 import requests
 from bs4 import BeautifulSoup
 from people import PRESIDENTS, SECRETARIES_OF_STATE
 
 BASE_URL = "https://en.wikipedia.org/w/api.php"
-DESTINATION_FOLDER = "text"
+DESTINATION_FOLDER = Path(__file__).parent.parent / "text" / "wikipedia"
 
 
 def get_pagetitle(query: str) -> str:
@@ -131,7 +133,8 @@ def dump_to_txt(
 ) -> None:
     """Dump a string into a .txt file"""
     filename_clean = filename.replace(" ", "_").replace(".", "").lower()
-    with open(f"{DESTINATION_FOLDER}/{filename_clean}.txt", "w") as handle:
+    DESTINATION_FOLDER.mkdir(parents=True, exist_ok=True)
+    with open(DESTINATION_FOLDER / f"{filename_clean}.txt", "w") as handle:
         handle.write(string)
 
 
