@@ -1,5 +1,6 @@
 import argparse
 import json
+import time
 from pathlib import Path
 
 import httpx
@@ -8,6 +9,7 @@ from bs4 import BeautifulSoup, Tag
 BASE_URL = "https://millercenter.org"
 PRESIDENTS_LIST_PATH = Path(__file__).parent / "miller_center_presidents.json"
 TEXT_DIR = Path(__file__).parent.parent / "text"
+REQUEST_DELAY_SECONDS = 1.0
 
 SUBPAGES = [
     "life-in-brief",
@@ -142,6 +144,7 @@ def main() -> None:
             article = scrape_article(president["link"], subpage)
             output_path = output_dir / filename
             output_path.write_text(article["text"])
+            time.sleep(REQUEST_DELAY_SECONDS)
 
 
 if __name__ == "__main__":
