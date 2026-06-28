@@ -133,8 +133,7 @@ def main() -> None:
     total = len(presidents) * len(SUBPAGES)
     count = 0
 
-    # for president in presidents:
-    for president in presidents[:3]:  # TODO: Delete after testing
+    for president in presidents:
         for subpage_index, subpage in enumerate(SUBPAGES):
             count += 1
             filename = build_filename(
