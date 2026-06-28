@@ -33,11 +33,13 @@ MODELS = {
 @dataclass(frozen=True)
 class ChunkRecord:
     source: str
+    document: str
     start_index: int
     text: str
 
 
 def chunk_txt_files(
+    source: str,
     documents_folder: str,
     chunk_size: int,
     chunk_overlap: int,
@@ -53,7 +55,8 @@ def chunk_txt_files(
         for document in text_splitter.create_documents([text]):
             chunks.append(
                 ChunkRecord(
-                    source=path.name,
+                    source=source,
+                    document=path.name,
                     start_index=document.metadata["start_index"],
                     text=document.page_content,
                 )
@@ -62,6 +65,7 @@ def chunk_txt_files(
 
 
 def ingest(
+    source: str,
     documents_folder: str,
     model_name: str,
     chunk_size: int,
@@ -75,7 +79,9 @@ def ingest(
             f"Choose from: {list(MODELS)}"
         )
     model = MODELS[model_name]
-    chunks = chunk_txt_files(documents_folder, chunk_size, chunk_overlap)
+    chunks = chunk_txt_files(
+        source, documents_folder, chunk_size, chunk_overlap
+    )
     if not chunks:
         raise ValueError(f"No .txt files found in {documents_folder!r}")
 
@@ -115,6 +121,7 @@ def ingest(
             model.data_model(
                 vector_store_config_id=vector_store_config.id,
                 source=chunk.source,
+                document=chunk.document,
                 start_index=chunk.start_index,
                 text=chunk.text,
                 embedding=embedding.tolist(),
@@ -135,6 +142,12 @@ def main() -> None:
     load_dotenv()
     parser = argparse.ArgumentParser(
         description="Ingest text files into the vector store."
+    )
+    parser.add_argument(
+        "-s",
+        "--source",
+        required=True,
+        help="Data source collection id (e.g. wikipedia, miller_center).",
     )
     parser.add_argument(
         "-d",
@@ -168,6 +181,7 @@ def main() -> None:
 
     start_time = time.time()
     num_chunks = ingest(
+        source=args.source,
         documents_folder=args.documents_folder,
         model_name=args.model,
         chunk_size=args.chunk_size,
@@ -176,7 +190,8 @@ def main() -> None:
     )
     elapsed = time.time() - start_time
     print(
-        f"Ingested {num_chunks} chunks from {args.documents_folder} in {elapsed:.1f}s"
+        f"Ingested {num_chunks} chunks from {args.source!r} "
+        f"({args.documents_folder}) in {elapsed:.1f}s"
     )
 
 
