@@ -52,8 +52,9 @@ class ChunkDim384(Base):
         UniqueConstraint(
             "vector_store_config_id",
             "source",
+            "document",
             "start_index",
-            name="uq_chunks_dim_384_vector_store_config_source_start",
+            name="uq_chunks_dim_384_vector_store_config_source_document_start",
         ),
     )
 
@@ -65,6 +66,7 @@ class ChunkDim384(Base):
         index=True,
     )
     source: Mapped[str] = mapped_column(Text, nullable=False)
+    document: Mapped[str] = mapped_column(Text, nullable=False)
     start_index: Mapped[int] = mapped_column(Integer, nullable=False)
     text: Mapped[str] = mapped_column(Text, nullable=False)
     embedding: Mapped[list[float]] = mapped_column(

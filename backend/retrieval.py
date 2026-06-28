@@ -46,6 +46,7 @@ def retrieve(
     return [
         RetrievedChunk(
             source=chunk.source,
+            document=chunk.document,
             start_index=chunk.start_index,
             text=chunk.text,
             retrieval_score=1.0 - float(distance),

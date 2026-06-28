@@ -6,11 +6,13 @@ from pydantic import BaseModel
 class RetrievedChunk(BaseModel):
     """A single document chunk returned by retrieval/reranking.
 
-    Identity is the ``(source, start_index)`` pair. ``chunk_id`` is the DB
-    primary key, carried along for eval joins/debugging but not relied upon.
+    Identity is the ``(source, document, start_index)`` triple. ``chunk_id`` is
+    the DB primary key, carried along for eval joins/debugging but not relied
+    upon.
     """
 
     source: str
+    document: str
     start_index: int
     text: str
     retrieval_score: float | None = None

@@ -21,6 +21,14 @@ class EmbeddingModelConfig:
     dim: int
 
 
+@dataclass(frozen=True)
+class ChunkRecord:
+    source: str
+    document: str
+    start_index: int
+    text: str
+
+
 MODELS = {
     "sentence-transformers/all-MiniLM-L6-v2": EmbeddingModelConfig(
         weights_path="weights/sentence-transformers_all-MiniLM-L6-v2",
@@ -28,17 +36,16 @@ MODELS = {
         dim=384,
     ),
 }
-
-
-@dataclass(frozen=True)
-class ChunkRecord:
-    source: str
-    start_index: int
-    text: str
+PROJECT_ROOT = Path(__file__).parent.parent
+SOURCES: dict[str, Path] = {
+    "wikipedia": PROJECT_ROOT / "text" / "wikipedia",
+    "miller_center": PROJECT_ROOT / "text" / "miller_center",
+}
 
 
 def chunk_txt_files(
-    documents_folder: str,
+    source: str,
+    documents_folder: Path,
     chunk_size: int,
     chunk_overlap: int,
 ) -> list[ChunkRecord]:
@@ -48,12 +55,13 @@ def chunk_txt_files(
         add_start_index=True,
     )
     chunks: list[ChunkRecord] = []
-    for path in sorted(Path(documents_folder).glob("*.txt")):
+    for path in sorted(documents_folder.glob("*.txt")):
         text = path.read_text(encoding="utf-8")
         for document in text_splitter.create_documents([text]):
             chunks.append(
                 ChunkRecord(
-                    source=path.name,
+                    source=source,
+                    document=path.name,
                     start_index=document.metadata["start_index"],
                     text=document.page_content,
                 )
@@ -62,26 +70,19 @@ def chunk_txt_files(
 
 
 def ingest(
-    documents_folder: str,
+    chunks: list[ChunkRecord],
     model_name: str,
     chunk_size: int,
     chunk_overlap: int,
     batch_size: int,
 ) -> int:
-    """Ingest text files into the vector store."""
-    if model_name not in MODELS:
-        raise ValueError(
-            f"Model {model_name!r} is not allowed. "
-            f"Choose from: {list(MODELS)}"
-        )
-    model = MODELS[model_name]
-    chunks = chunk_txt_files(documents_folder, chunk_size, chunk_overlap)
+    """Embed ``chunks`` and load them into the vector store."""
     if not chunks:
-        raise ValueError(f"No .txt files found in {documents_folder!r}")
+        raise ValueError("No chunks to ingest.")
 
+    model = MODELS[model_name]
     session = get_session()
     try:
-        # 1. Create vector store config record
         existing = session.execute(
             select(VectorStoreConfig).where(
                 VectorStoreConfig.model_name == model_name,
@@ -103,7 +104,6 @@ def ingest(
         session.add(vector_store_config)
         session.flush()
 
-        # 2. Create embedding records
         embedder = SentenceTransformer(model.weights_path)
         texts = [chunk.text for chunk in chunks]
         embeddings = embedder.encode(
@@ -115,6 +115,7 @@ def ingest(
             model.data_model(
                 vector_store_config_id=vector_store_config.id,
                 source=chunk.source,
+                document=chunk.document,
                 start_index=chunk.start_index,
                 text=chunk.text,
                 embedding=embedding.tolist(),
@@ -134,13 +135,7 @@ def ingest(
 def main() -> None:
     load_dotenv()
     parser = argparse.ArgumentParser(
-        description="Ingest text files into the vector store."
-    )
-    parser.add_argument(
-        "-d",
-        "--documents-folder",
-        required=True,
-        help="Folder containing .txt files to ingest.",
+        description="Ingest all configured text sources into the vector store."
     )
     parser.add_argument(
         "-m",
@@ -163,21 +158,47 @@ def main() -> None:
         required=True,
         help="Number of overlapping characters between chunks.",
     )
-    parser.add_argument("-b", "--batch-size", type=int, default=64)
+    parser.add_argument(
+        "-b",
+        "--batch-size",
+        type=int,
+        default=64,
+        help="Batch size for embedding chunks.",
+    )
     args = parser.parse_args()
 
+    if args.model not in MODELS:
+        raise ValueError(
+            f"Model {args.model!r} is not allowed. "
+            f"Choose from: {list(MODELS)}"
+        )
+
     start_time = time.time()
+    chunks: list[ChunkRecord] = []
+    for source, documents_folder in SOURCES.items():
+        source_chunks = chunk_txt_files(
+            source,
+            documents_folder,
+            args.chunk_size,
+            args.chunk_overlap,
+        )
+        if not source_chunks:
+            raise ValueError(f"No .txt files found in {documents_folder!r}")
+        chunks.extend(source_chunks)
+        print(
+            f"Chunked {len(source_chunks)} chunks from {source!r} "
+            f"({documents_folder})"
+        )
+
     num_chunks = ingest(
-        documents_folder=args.documents_folder,
+        chunks=chunks,
         model_name=args.model,
         chunk_size=args.chunk_size,
         chunk_overlap=args.chunk_overlap,
         batch_size=args.batch_size,
     )
     elapsed = time.time() - start_time
-    print(
-        f"Ingested {num_chunks} chunks from {args.documents_folder} in {elapsed:.1f}s"
-    )
+    print(f"Ingested {num_chunks} total chunks in {elapsed:.1f}s")
 
 
 if __name__ == "__main__":
