@@ -21,6 +21,14 @@ class EmbeddingModelConfig:
     dim: int
 
 
+@dataclass(frozen=True)
+class ChunkRecord:
+    source: str
+    document: str
+    start_index: int
+    text: str
+
+
 MODELS = {
     "sentence-transformers/all-MiniLM-L6-v2": EmbeddingModelConfig(
         weights_path="weights/sentence-transformers_all-MiniLM-L6-v2",
@@ -28,20 +36,11 @@ MODELS = {
         dim=384,
     ),
 }
-
 PROJECT_ROOT = Path(__file__).parent.parent
 SOURCES: dict[str, Path] = {
     "wikipedia": PROJECT_ROOT / "text" / "wikipedia",
     "miller_center": PROJECT_ROOT / "text" / "miller_center",
 }
-
-
-@dataclass(frozen=True)
-class ChunkRecord:
-    source: str
-    document: str
-    start_index: int
-    text: str
 
 
 def chunk_txt_files(
@@ -78,11 +77,6 @@ def ingest(
     batch_size: int,
 ) -> int:
     """Embed ``chunks`` and load them into the vector store."""
-    if model_name not in MODELS:
-        raise ValueError(
-            f"Model {model_name!r} is not allowed. "
-            f"Choose from: {list(MODELS)}"
-        )
     if not chunks:
         raise ValueError("No chunks to ingest.")
 
@@ -164,8 +158,20 @@ def main() -> None:
         required=True,
         help="Number of overlapping characters between chunks.",
     )
-    parser.add_argument("-b", "--batch-size", type=int, default=64)
+    parser.add_argument(
+        "-b",
+        "--batch-size",
+        type=int,
+        default=64,
+        help="Batch size for embedding chunks.",
+    )
     args = parser.parse_args()
+
+    if args.model not in MODELS:
+        raise ValueError(
+            f"Model {args.model!r} is not allowed. "
+            f"Choose from: {list(MODELS)}"
+        )
 
     start_time = time.time()
     chunks: list[ChunkRecord] = []
