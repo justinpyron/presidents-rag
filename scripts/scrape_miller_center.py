@@ -97,8 +97,10 @@ def normalize_name(name: str) -> str:
     return name.replace(" ", "_").replace(".", "").lower()
 
 
-def build_filename(number: int, name: str, subpage: str) -> str:
-    return f"{number:02d}_{normalize_name(name)}_{subpage}.txt"
+def build_filename(
+    number: int, name: str, subpage_index: int, subpage: str
+) -> str:
+    return f"{number:02d}_{normalize_name(name)}_{subpage_index}_{subpage}.txt"
 
 
 def scrape_article(president_link: str, subpage: str) -> dict:
@@ -133,10 +135,10 @@ def main() -> None:
 
     # for president in presidents:
     for president in presidents[:3]:  # TODO: Delete after testing
-        for subpage in SUBPAGES:
+        for subpage_index, subpage in enumerate(SUBPAGES):
             count += 1
             filename = build_filename(
-                president["number"], president["name"], subpage
+                president["number"], president["name"], subpage_index, subpage
             )
             print(
                 f"[{count:4}/{total}] Scraping... "
