@@ -112,7 +112,8 @@ def main() -> None:
         description="Scrape Miller Center president articles into text files."
     )
     parser.add_argument(
-        "subfolder",
+        "-s",
+        "--subfolder",
         help="Name of the subfolder inside text/ where results should be saved.",
     )
     args = parser.parse_args()
