@@ -68,17 +68,34 @@ def model_name(model_id: str) -> str:
 
 
 # --- Source collections ------------------------------------------------------
-# The knowledge base is Wikipedia-only, so there is a single, always-on
-# collection. The picker exists to mirror the design and make the scope of the
-# archive explicit.
 SOURCES = [
     {
         "id": "wikipedia",
         "name": "Wikipedia",
         "desc": "Crowd-sourced encyclopedia articles",
     },
+    {
+        "id": "miller_center",
+        "name": "Miller Center",
+        "desc": "Scholarly essays from the University of Virginia",
+    },
 ]
-SOURCE_LABEL = "Wikipedia"  # shown on each source card's collection tag
+DEFAULT_SOURCE_IDS = [s["id"] for s in SOURCES]
+SOURCE_NAMES = {s["id"]: s["name"] for s in SOURCES}
+
+
+def source_collection_name(source_id: str) -> str:
+    """Human-facing name for a collection id."""
+    return SOURCE_NAMES.get(source_id, source_id.replace("_", " ").title())
+
+
+def sources_chip_label(selected_ids: list[str]) -> str:
+    """Composer chip text for the current source selection."""
+    if len(selected_ids) == len(SOURCES):
+        return "Sources · All"
+    if len(selected_ids) == 1:
+        return f"Sources · {source_collection_name(selected_ids[0])}"
+    return f"Sources · {len(selected_ids)}"
 
 
 # --- Element ids -------------------------------------------------------------
@@ -86,6 +103,7 @@ class ID:
     # stores
     CONVERSATION = "conv-store"  # active conversation id
     MODEL = "model-store"  # selected model id
+    SOURCES = "sources-store"  # selected source collection ids
     PENDING = "pending-store"  # in-flight query (drives the agent run)
     POPOVER = "popover-store"  # name of the open popover, or None
     SCROLL_DUMMY = "scroll-dummy"  # autoscroll callback sink
@@ -112,7 +130,9 @@ class ID:
     MODEL_POP = "model-pop"
     MODEL_MENU = "model-menu"
     SOURCES_TRIGGER = "sources-trigger"
+    SOURCES_CHIP_LABEL = "sources-chip-label"
     SOURCES_POP = "sources-pop"
+    SOURCES_MENU = "sources-menu"
 
 
 # Popover names (values stored in ID.POPOVER)

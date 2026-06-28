@@ -86,7 +86,7 @@ class Server:
                     vector_store_config_id=VECTOR_STORE_CONFIG_ID,
                     query=request.query,
                     top_k=request.top_k,
-                    source=request.source,
+                    sources=request.sources,
                 )
             finally:
                 session.close()

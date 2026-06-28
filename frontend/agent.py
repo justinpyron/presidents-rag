@@ -36,8 +36,8 @@ TOP_K_RERANK = 10
 SYSTEM_PROMPT = """
 You are a research assistant answering questions about US Presidents and
 Secretaries of State. You have one tool, `search_knowledge_base`, which takes a
-search query and returns relevant document chunks from a Wikipedia knowledge
-base. Each chunk has a `chunk_id`.
+search query and returns relevant document chunks from a knowledge
+base. Each chunk has a `chunk_id` and a `source` collection label.
 
 How to work:
 - Decide how much effort the question needs. A simple, single-fact question may
@@ -94,11 +94,13 @@ class AgentResponse(BaseModel):
 class AgentDeps:
     """Per-run dependencies and state.
 
-    ``seen`` accumulates every chunk returned by the tool across the whole run,
-    keyed by ``chunk_id`` so repeats dedupe naturally.
+    ``sources`` is the per-turn retrieval policy (set before each run).
+    ``seen`` accumulates every chunk returned by the tool across the whole
+    conversation, keyed by ``chunk_id`` so repeats dedupe naturally.
     """
 
     client: RAGClient
+    sources: list[str] | None = None
     top_k_retrieval: int = TOP_K_RETRIEVAL
     top_k_rerank: int = TOP_K_RERANK
     seen: dict[int, RetrievedChunk] = field(default_factory=dict)
@@ -125,7 +127,11 @@ def search_knowledge_base(
         query: A focused natural-language search query.
     """
     deps = ctx.deps
-    chunks = deps.client.retrieve(query, top_k=deps.top_k_retrieval)
+    chunks = deps.client.retrieve(
+        query,
+        top_k=deps.top_k_retrieval,
+        sources=deps.sources,
+    )
     top = deps.client.rerank(query, chunks, deps.top_k_rerank)
     for chunk in top:
         if chunk.chunk_id is not None:

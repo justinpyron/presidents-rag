@@ -22,14 +22,18 @@ def retrieve(
     vector_store_config_id: int,
     query: str,
     top_k: int,
-    source: str | None = None,
+    sources: list[str] | None = None,
 ) -> list[RetrievedChunk]:
     """Embed ``query`` and return the ``top_k`` nearest chunks by cosine distance.
 
     ``retrieval_score`` is reported as cosine similarity (``1 - distance``), so
-    higher means more similar.
+    higher means more similar. When ``sources`` is set, only chunks from those
+    collections are considered; ``None`` searches the full knowledge base.
     """
     import torch
+
+    if sources is not None and not sources:
+        return []
 
     with torch.no_grad():
         q_emb = embedder.encode([query])[0].tolist()
@@ -38,8 +42,8 @@ def retrieve(
         ChunkDim384,
         ChunkDim384.embedding.cosine_distance(q_emb).label("distance"),
     ).where(ChunkDim384.vector_store_config_id == vector_store_config_id)
-    if source is not None:
-        stmt = stmt.where(ChunkDim384.source == source)
+    if sources is not None:
+        stmt = stmt.where(ChunkDim384.source.in_(sources))
     stmt = stmt.order_by("distance").limit(top_k)
 
     rows = session.execute(stmt).all()

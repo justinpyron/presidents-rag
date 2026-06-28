@@ -5,10 +5,12 @@ from dash import dcc, html
 from frontend.dash_app import theme as t
 from frontend.dash_app.config import (
     COMPOSER_PLACEHOLDER,
+    DEFAULT_SOURCE_IDS,
     ID,
     MODELS,
     SOURCES,
     model_name,
+    sources_chip_label,
 )
 
 
@@ -146,60 +148,79 @@ def _model_picker(selected_id: str) -> html.Div:
     )
 
 
-def _sources_picker() -> html.Div:
-    # The knowledge base is Wikipedia-only: one collection, always selected.
-    rows = [
-        html.Div(
-            style={
-                "display": "flex",
-                "alignItems": "flex-start",
-                "gap": "11px",
-                "padding": "9px 10px",
-                "borderRadius": "9px",
-            },
-            children=[
-                html.Span(
-                    "✓",
-                    style={
-                        "flex": "none",
-                        "width": "18px",
-                        "height": "18px",
-                        "borderRadius": "5px",
-                        "background": t.ACCENT,
-                        "color": "#fff",
-                        "display": "inline-flex",
-                        "alignItems": "center",
-                        "justifyContent": "center",
-                        "fontSize": "11px",
-                        "marginTop": "1px",
-                    },
-                ),
-                html.Div(
-                    [
-                        html.Div(
-                            s["name"],
-                            style={
-                                "fontFamily": t.SANS,
-                                "fontWeight": 600,
-                                "fontSize": "13.5px",
-                                "color": t.INK,
-                            },
-                        ),
-                        html.Div(
-                            s["desc"],
-                            style={
-                                "fontFamily": t.SANS,
-                                "fontSize": "12px",
-                                "color": t.MUTED,
-                                "marginTop": "1px",
-                            },
-                        ),
-                    ]
-                ),
-            ],
+def sources_menu(selected_ids: list[str]) -> list:
+    """Rows for the sources picker; re-rendered on selection to update ticks."""
+    selected = set(selected_ids)
+    rows = []
+    for s in SOURCES:
+        active = s["id"] in selected
+        rows.append(
+            html.Div(
+                id={"type": "source-option", "index": s["id"]},
+                n_clicks=0,
+                className="menu-row",
+                style={
+                    "display": "flex",
+                    "alignItems": "flex-start",
+                    "gap": "11px",
+                    "padding": "9px 10px",
+                    "borderRadius": "9px",
+                    "cursor": "pointer",
+                    "background": "#f0e7d6" if active else "transparent",
+                },
+                children=[
+                    html.Span(
+                        "✓" if active else "",
+                        style={
+                            "flex": "none",
+                            "width": "18px",
+                            "height": "18px",
+                            "borderRadius": "5px",
+                            "background": t.ACCENT
+                            if active
+                            else "transparent",
+                            "border": (
+                                f"1px solid {t.ACCENT}"
+                                if not active
+                                else "none"
+                            ),
+                            "color": "#fff",
+                            "display": "inline-flex",
+                            "alignItems": "center",
+                            "justifyContent": "center",
+                            "fontSize": "11px",
+                            "marginTop": "1px",
+                        },
+                    ),
+                    html.Div(
+                        [
+                            html.Div(
+                                s["name"],
+                                style={
+                                    "fontFamily": t.SANS,
+                                    "fontWeight": 600,
+                                    "fontSize": "13.5px",
+                                    "color": t.INK,
+                                },
+                            ),
+                            html.Div(
+                                s["desc"],
+                                style={
+                                    "fontFamily": t.SANS,
+                                    "fontSize": "12px",
+                                    "color": t.MUTED,
+                                    "marginTop": "1px",
+                                },
+                            ),
+                        ]
+                    ),
+                ],
+            )
         )
-        for s in SOURCES
-    ]
+    return rows
+
+
+def _sources_picker(selected_ids: list[str]) -> html.Div:
     popover = html.Div(
         id=ID.SOURCES_POP,
         className="hidden",
@@ -216,10 +237,11 @@ def _sources_picker() -> html.Div:
                     "padding": "0 10px 8px",
                 },
             ),
-            *rows,
+            html.Div(id=ID.SOURCES_MENU, children=sources_menu(selected_ids)),
             html.Div(
-                html.Span(
-                    f"{len(SOURCES)} of {len(SOURCES)} selected",
+                id=f"{ID.SOURCES_MENU}-count",
+                children=html.Span(
+                    f"{len(selected_ids)} of {len(SOURCES)} selected",
                     style={
                         "fontFamily": t.SANS,
                         "fontSize": "12px",
@@ -238,9 +260,9 @@ def _sources_picker() -> html.Div:
         style={"position": "relative"},
         children=[
             _chip(
-                f"{ID.SOURCES_TRIGGER}-label",
+                ID.SOURCES_CHIP_LABEL,
                 ID.SOURCES_TRIGGER,
-                "Sources · All",
+                sources_chip_label(selected_ids),
             ),
             popover,
         ],
@@ -269,7 +291,9 @@ def _send_button() -> html.Div:
     )
 
 
-def composer(selected_model_id: str) -> html.Div:
+def composer(
+    selected_model_id: str, selected_source_ids: list[str]
+) -> html.Div:
     box = html.Div(
         style={
             "position": "relative",
@@ -312,7 +336,7 @@ def composer(selected_model_id: str) -> html.Div:
                 },
                 children=[
                     _model_picker(selected_model_id),
-                    _sources_picker(),
+                    _sources_picker(selected_source_ids),
                     _send_button(),
                 ],
             ),

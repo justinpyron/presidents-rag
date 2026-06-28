@@ -18,7 +18,11 @@ from pydantic_ai.usage import UsageLimits
 from backend.schemas import RetrievedChunk
 from frontend.agent import REQUEST_LIMIT, AgentDeps, agent, parse_agent_run
 from frontend.client import RAGClient
-from frontend.dash_app.config import ABSTAIN_TEXT, ERROR_TEXT, SOURCE_LABEL
+from frontend.dash_app.config import (
+    ABSTAIN_TEXT,
+    ERROR_TEXT,
+    source_collection_name,
+)
 
 
 def prettify_source(source: str) -> str:
@@ -43,8 +47,8 @@ class SourceView:
     def from_chunk(cls, n: int, chunk: RetrievedChunk) -> "SourceView":
         return cls(
             n=n,
-            name=prettify_source(chunk.source),
-            collection=SOURCE_LABEL,
+            name=prettify_source(chunk.document),
+            collection=source_collection_name(chunk.source),
             excerpt=chunk.text.strip(),
         )
 
@@ -116,13 +120,20 @@ class ConversationStore:
             DisplayMessage(id=conv.next_id(), role="user", text=text)
         )
 
-    def run_assistant(self, conv_id: str, query: str, model_id: str) -> None:
+    def run_assistant(
+        self,
+        conv_id: str,
+        query: str,
+        model_id: str,
+        sources: list[str],
+    ) -> None:
         """Run one agentic loop and append the assistant's turn.
 
         Failures (e.g. a missing provider API key) are caught and surfaced as a
         friendly error message rather than crashing the callback.
         """
         conv = self.get(conv_id)
+        conv.deps.sources = sources
         try:
             result = agent.run_sync(
                 query,

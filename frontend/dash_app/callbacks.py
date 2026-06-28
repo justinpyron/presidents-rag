@@ -23,21 +23,26 @@ from dash import (
     callback,
     clientside_callback,
     ctx,
+    html,
 )
 from dash.exceptions import PreventUpdate
 
-from frontend.dash_app.components.composer import model_menu
+from frontend.dash_app import theme as t
+from frontend.dash_app.components.composer import model_menu, sources_menu
 from frontend.dash_app.components.conversation import render_conversation
 from frontend.dash_app.components.welcome import welcome
 from frontend.dash_app.config import (
     DEFAULT_MODEL_ID,
+    DEFAULT_SOURCE_IDS,
     EXAMPLE_PROMPTS,
     ID,
     POP_ABOUT,
     POP_MODEL,
     POP_NEWCONFIRM,
     POP_SOURCES,
+    SOURCES,
     model_name,
+    sources_chip_label,
 )
 from frontend.dash_app.services.conversation import store
 
@@ -54,10 +59,13 @@ from frontend.dash_app.services.conversation import store
     State(ID.INPUT, "value"),
     State(ID.CONVERSATION, "data"),
     State(ID.MODEL, "data"),
+    State(ID.SOURCES, "data"),
     State(ID.PENDING, "data"),
     prevent_initial_call=True,
 )
-def submit(send_clicks, _example_clicks, text, conv_id, model_id, pending):
+def submit(
+    send_clicks, _example_clicks, text, conv_id, model_id, source_ids, pending
+):
     if pending:  # a run is already in flight; ignore further submits
         raise PreventUpdate
 
@@ -79,11 +87,17 @@ def submit(send_clicks, _example_clicks, text, conv_id, model_id, pending):
 
     conv_id = conv_id or uuid.uuid4().hex
     model_id = model_id or DEFAULT_MODEL_ID
+    source_ids = source_ids or DEFAULT_SOURCE_IDS
     store.add_user_message(conv_id, query)
 
     conv = store.get(conv_id)
     children = render_conversation(conv, loading=True)
-    pending = {"conv_id": conv_id, "query": query, "model": model_id}
+    pending = {
+        "conv_id": conv_id,
+        "query": query,
+        "model": model_id,
+        "sources": source_ids,
+    }
     return children, "", pending, conv_id, None
 
 
@@ -96,7 +110,12 @@ def submit(send_clicks, _example_clicks, text, conv_id, model_id, pending):
 def run_agent(pending):
     if not pending:
         raise PreventUpdate
-    store.run_assistant(pending["conv_id"], pending["query"], pending["model"])
+    store.run_assistant(
+        pending["conv_id"],
+        pending["query"],
+        pending["model"],
+        pending["sources"],
+    )
     conv = store.get(pending["conv_id"])
     return render_conversation(conv, loading=False), None
 
@@ -134,6 +153,43 @@ def select_model(_clicks):
         raise PreventUpdate
     model_id = trigger["index"]
     return model_id, model_name(model_id), model_menu(model_id), None
+
+
+# --- Source selection ----------------------------------------------------------
+@callback(
+    Output(ID.SOURCES, "data"),
+    Output(ID.SOURCES_CHIP_LABEL, "children"),
+    Output(ID.SOURCES_MENU, "children"),
+    Output(f"{ID.SOURCES_MENU}-count", "children"),
+    Output(ID.POPOVER, "data", allow_duplicate=True),
+    Input({"type": "source-option", "index": ALL}, "n_clicks"),
+    State(ID.SOURCES, "data"),
+    prevent_initial_call=True,
+)
+def select_sources(_clicks, current):
+    trigger = ctx.triggered_id
+    if not isinstance(trigger, dict) or not ctx.triggered[0]["value"]:
+        raise PreventUpdate
+
+    source_id = trigger["index"]
+    selected = list(current or DEFAULT_SOURCE_IDS)
+    if source_id in selected:
+        if len(selected) > 1:
+            selected.remove(source_id)
+    else:
+        selected.append(source_id)
+
+    count = html.Span(
+        f"{len(selected)} of {len(SOURCES)} selected",
+        style={"fontFamily": t.SANS, "fontSize": "12px", "color": t.MUTED},
+    )
+    return (
+        selected,
+        sources_chip_label(selected),
+        sources_menu(selected),
+        count,
+        None,
+    )
 
 
 # --- Popover open/close (which popover is open) -------------------------------
