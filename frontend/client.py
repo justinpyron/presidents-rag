@@ -43,7 +43,7 @@ DOCUMENT {{ loop.index }}
 
 class RAGClient:
     def __init__(self) -> None:
-        self.http_client = httpx.Client(base_url=SERVER_URL, timeout=30.0)
+        self.http_client = httpx.Client(base_url=SERVER_URL, timeout=60.0)
         self.prompt_template = jinja2.Template(PROMPT_TEMPLATE)
         self.openai_client = OpenAI(api_key=API_KEY)
 
