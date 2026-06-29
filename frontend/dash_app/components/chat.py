@@ -1,14 +1,10 @@
-"""Renders a conversation transcript: user bubbles, answers and sources."""
+"""Renders a chat transcript: user bubbles, answers and sources."""
 
 from dash import dcc, html
 
 from frontend.dash_app import theme as t
 from frontend.dash_app.config import ABSTAIN_TEXT, LOADING_TEXT
-from frontend.dash_app.services.conversation import (
-    Conversation,
-    DisplayMessage,
-    SourceView,
-)
+from frontend.dash_app.services.chat import Chat, DisplayMessage, SourceView
 
 
 def _avatar() -> html.Div:
@@ -238,10 +234,10 @@ def _loading() -> html.Div:
     )
 
 
-def render_conversation(conv: Conversation, loading: bool) -> html.Div:
+def render_chat(chat: Chat, loading: bool) -> html.Div:
     """Render the full transcript, with a loading bubble when a run is in flight."""
     children = []
-    for msg in conv.display:
+    for msg in chat.display:
         if msg.role == "user":
             children.append(_user_message(msg))
         else:

@@ -225,16 +225,6 @@ def _sources_picker(selected_ids: list[str]) -> html.Div:
         style={**_up_popover(330)},
         children=[
             _menu_label("Sources"),
-            html.Div(
-                "Choose which collections the agent searches.",
-                style={
-                    "fontFamily": t.SANS,
-                    "fontSize": "12px",
-                    "lineHeight": 1.4,
-                    "color": t.MUTED,
-                    "padding": "0 10px 8px",
-                },
-            ),
             html.Div(id=ID.SOURCES_MENU, children=sources_menu(selected_ids)),
             html.Div(
                 id=f"{ID.SOURCES_MENU}-count",

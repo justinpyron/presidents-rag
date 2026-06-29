@@ -55,7 +55,7 @@ server = app.server  # for WSGI deployment (e.g. gunicorn)
 
 def _stores() -> list:
     return [
-        dcc.Store(id=ID.CONVERSATION, data=None),
+        dcc.Store(id=ID.CHAT, data=None),
         dcc.Store(id=ID.MODEL, data=DEFAULT_MODEL_ID),
         dcc.Store(id=ID.SOURCES, data=DEFAULT_SOURCE_IDS),
         dcc.Store(id=ID.PENDING, data=None),

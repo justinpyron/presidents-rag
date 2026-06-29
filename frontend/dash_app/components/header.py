@@ -1,4 +1,4 @@
-"""Top bar: brand mark, About popover and New-conversation control."""
+"""Top bar: brand mark, About popover and New-chat control."""
 
 from dash import dcc, html
 
@@ -77,7 +77,7 @@ def _about_popover() -> html.Div:
     return html.Div(
         id=ID.ABOUT_POP,
         className="hidden",
-        style=t.popover(360),
+        style={**t.popover(360), "right": "auto", "left": 0},
         children=[
             html.Div(
                 "About this project",
@@ -138,10 +138,10 @@ def _newconfirm_popover() -> html.Div:
     return html.Div(
         id=ID.NEWCONFIRM_POP,
         className="hidden",
-        style={**t.popover(290), "borderRadius": "13px", "padding": "16px"},
+        style={**t.popover(320), "borderRadius": "13px", "padding": "16px"},
         children=[
             html.Div(
-                "Start a new conversation?",
+                "Start a new chat?",
                 style={
                     "fontFamily": t.SANS,
                     "fontWeight": 600,
@@ -168,7 +168,9 @@ def _newconfirm_popover() -> html.Div:
                         n_clicks=0,
                         style={
                             "flex": "1",
-                            "textAlign": "center",
+                            "display": "flex",
+                            "alignItems": "center",
+                            "justifyContent": "center",
                             "border": f"1px solid {t.BORDER_SOFT}",
                             "borderRadius": "9px",
                             "padding": "8px",
@@ -180,11 +182,14 @@ def _newconfirm_popover() -> html.Div:
                         },
                     ),
                     html.Div(
-                        "New conversation",
+                        "New chat",
                         id=ID.CONFIRM_NEW,
                         n_clicks=0,
                         style={
                             "flex": "1",
+                            "display": "flex",
+                            "alignItems": "center",
+                            "justifyContent": "center",
                             "textAlign": "center",
                             "background": t.ACCENT,
                             "color": t.ON_ACCENT,
@@ -203,24 +208,6 @@ def _newconfirm_popover() -> html.Div:
 
 
 def header() -> html.Div:
-    info_badge = html.Span(
-        "i",
-        style={
-            "width": "16px",
-            "height": "16px",
-            "borderRadius": "50%",
-            "border": "1.5px solid #b6a587",
-            "color": t.MUTED,
-            "fontFamily": "Georgia, serif",
-            "fontStyle": "italic",
-            "fontWeight": 700,
-            "fontSize": "10px",
-            "display": "inline-flex",
-            "alignItems": "center",
-            "justifyContent": "center",
-        },
-    )
-
     return html.Div(
         style={
             "flex": "none",
@@ -246,10 +233,45 @@ def header() -> html.Div:
                         style={
                             "fontFamily": t.SERIF,
                             "fontWeight": 600,
-                            "fontSize": "18px",
+                            "fontSize": "20px",
                             "color": t.INK,
                             "letterSpacing": ".2px",
                         },
+                    ),
+                    # Filled-accent info circle: a quiet but visible entry point
+                    # to the "About this project" popover.
+                    html.Div(
+                        style={
+                            "position": "relative",
+                            "display": "inline-flex",
+                            "alignItems": "center",
+                        },
+                        children=[
+                            html.Div(
+                                "i",
+                                id=ID.ABOUT_TRIGGER,
+                                n_clicks=0,
+                                title="How it works",
+                                className="hover-icon-fill",
+                                style={
+                                    "width": "18px",
+                                    "height": "18px",
+                                    "borderRadius": "50%",
+                                    "color": t.ON_ACCENT,
+                                    "fontFamily": "Georgia, serif",
+                                    "fontStyle": "italic",
+                                    "fontWeight": 700,
+                                    "fontSize": "11px",
+                                    "lineHeight": "1",
+                                    "display": "inline-flex",
+                                    "alignItems": "center",
+                                    "justifyContent": "center",
+                                    "cursor": "pointer",
+                                    "flex": "none",
+                                },
+                            ),
+                            _about_popover(),
+                        ],
                     ),
                 ],
             ),
@@ -266,28 +288,6 @@ def header() -> html.Div:
                         style={"position": "relative"},
                         children=[
                             html.Div(
-                                [info_badge, " About"],
-                                id=ID.ABOUT_TRIGGER,
-                                n_clicks=0,
-                                className="hover-ink",
-                                style={
-                                    "display": "inline-flex",
-                                    "alignItems": "center",
-                                    "gap": "6px",
-                                    "fontFamily": t.SANS,
-                                    "fontWeight": 500,
-                                    "fontSize": "13px",
-                                    "color": t.MUTED,
-                                    "cursor": "pointer",
-                                },
-                            ),
-                            _about_popover(),
-                        ],
-                    ),
-                    html.Div(
-                        style={"position": "relative"},
-                        children=[
-                            html.Div(
                                 [
                                     html.Span(
                                         "+",
@@ -297,7 +297,7 @@ def header() -> html.Div:
                                             "color": t.ACCENT,
                                         },
                                     ),
-                                    " New conversation",
+                                    " New chat",
                                 ],
                                 id=ID.NEW_TRIGGER,
                                 n_clicks=0,
