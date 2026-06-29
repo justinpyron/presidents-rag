@@ -9,6 +9,7 @@ description = ""
 requires-python = ">=3.12"
 dependencies = [
     "dash>=4.3.0",
+    "gunicorn>=23.0.0",
     "httpx>=0.28.1",
     "jinja2>=3.1.6",
     "logfire>=4.37.0",

@@ -15,9 +15,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Expose port 8080 for Cloud Run
 EXPOSE 8080
 
-# Run Streamlit with Cloud Run-compatible settings
-CMD ["streamlit", "run", "frontend/app.py", \
-     "--server.port=8080", \
-     "--server.address=0.0.0.0", \
-     "--server.headless=true", \
-     "--browser.gatherUsageStats=false"]
+# Serve the Dash app via gunicorn. `frontend.dash_app.main:server` is the WSGI
+# callable (Flask) exposed by the Dash app. Requests are I/O-bound on the
+# retrieval server and model providers, so a single worker with several threads
+# handles concurrency well; scale workers/threads to the host's CPU and memory.
+CMD ["gunicorn", "frontend.dash_app.main:server", \
+     "--bind=0.0.0.0:8080", \
+     "--workers=1", \
+     "--threads=8", \
+     "--timeout=120"]
