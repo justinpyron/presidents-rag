@@ -43,9 +43,23 @@ DOCUMENT {{ loop.index }}
 
 class RAGClient:
     def __init__(self) -> None:
-        self.http_client = httpx.Client(base_url=SERVER_URL, timeout=30.0)
+        self.http_client = httpx.Client(base_url=SERVER_URL, timeout=60.0)
         self.prompt_template = jinja2.Template(PROMPT_TEMPLATE)
         self.openai_client = OpenAI(api_key=API_KEY)
+
+    def is_healthy(self, timeout: float = 4.0) -> bool:
+        """Whether the server's ``/health`` endpoint responds OK.
+
+        Drives the warm-up indicator. A cold-starting server holds the request
+        until its container is ready, so a timeout here means "still warming",
+        not necessarily "down" — callers distinguish a genuine outage by how
+        long the failures persist.
+        """
+        try:
+            response = self.http_client.get("/health", timeout=timeout)
+            return response.status_code == 200
+        except httpx.HTTPError:
+            return False
 
     def retrieve(
         self,

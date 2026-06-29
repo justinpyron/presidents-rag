@@ -30,6 +30,7 @@ from dash.exceptions import PreventUpdate
 from frontend.dash_app import theme as t
 from frontend.dash_app.components.composer import model_menu, sources_menu
 from frontend.dash_app.components.conversation import render_conversation
+from frontend.dash_app.components.header import server_status_content
 from frontend.dash_app.components.welcome import welcome
 from frontend.dash_app.config import (
     DEFAULT_MODEL_ID,
@@ -118,6 +119,34 @@ def run_agent(pending):
     )
     conv = store.get(pending["conv_id"])
     return render_conversation(conv, loading=False), None
+
+
+# --- Server warm-up status ---------------------------------------------------
+# How long to keep polling /health before declaring the server unavailable.
+# A cold start takes ~30s; persistent failure well beyond that means the server
+# is genuinely down (bad SERVER_URL, app not deployed) rather than warming.
+WARMUP_MAX_ATTEMPTS = 40  # ~2 min at the 3s poll interval
+
+
+@callback(
+    Output(ID.SERVER_STATUS, "children"),
+    Output(ID.SERVER_POLL, "disabled"),
+    Input(ID.SERVER_POLL, "n_intervals"),
+    prevent_initial_call=False,
+)
+def poll_server_status(n_intervals):
+    """Poll the retrieval server's health and drive the header indicator.
+
+    The first tick fires on page load and wakes a cold server. We keep showing
+    "warming" while requests fail, flip to "ready" on the first healthy
+    response, or give up with "unavailable" once the retry budget is spent —
+    disabling the poll in either terminal state so it stays put.
+    """
+    if store.is_server_healthy():
+        return server_status_content("ready"), True
+    if (n_intervals or 0) >= WARMUP_MAX_ATTEMPTS:
+        return server_status_content("unavailable"), True
+    return server_status_content("warming"), False
 
 
 # --- New conversation --------------------------------------------------------

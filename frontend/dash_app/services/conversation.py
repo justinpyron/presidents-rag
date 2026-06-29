@@ -130,6 +130,10 @@ class ConversationStore:
         conv = self._conversations.get(conv_id) if conv_id else None
         return bool(conv and conv.display)
 
+    def is_server_healthy(self) -> bool:
+        """Whether the retrieval server is warm and ready to serve requests."""
+        return self._client.is_healthy()
+
     def reset(self, conv_id: str) -> None:
         """Forget a conversation so the next message starts a clean thread."""
         with self._lock:
