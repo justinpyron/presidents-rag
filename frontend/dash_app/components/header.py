@@ -1,4 +1,4 @@
-"""Top bar: brand mark, About popover and New-conversation control."""
+"""Top bar: brand mark, About popover and New-chat control."""
 
 from dash import dcc, html
 
@@ -138,10 +138,10 @@ def _newconfirm_popover() -> html.Div:
     return html.Div(
         id=ID.NEWCONFIRM_POP,
         className="hidden",
-        style={**t.popover(290), "borderRadius": "13px", "padding": "16px"},
+        style={**t.popover(320), "borderRadius": "13px", "padding": "16px"},
         children=[
             html.Div(
-                "Start a new conversation?",
+                "Start a new chat?",
                 style={
                     "fontFamily": t.SANS,
                     "fontWeight": 600,
@@ -168,7 +168,9 @@ def _newconfirm_popover() -> html.Div:
                         n_clicks=0,
                         style={
                             "flex": "1",
-                            "textAlign": "center",
+                            "display": "flex",
+                            "alignItems": "center",
+                            "justifyContent": "center",
                             "border": f"1px solid {t.BORDER_SOFT}",
                             "borderRadius": "9px",
                             "padding": "8px",
@@ -180,11 +182,14 @@ def _newconfirm_popover() -> html.Div:
                         },
                     ),
                     html.Div(
-                        "New conversation",
+                        "New chat",
                         id=ID.CONFIRM_NEW,
                         n_clicks=0,
                         style={
                             "flex": "1",
+                            "display": "flex",
+                            "alignItems": "center",
+                            "justifyContent": "center",
                             "textAlign": "center",
                             "background": t.ACCENT,
                             "color": t.ON_ACCENT,
@@ -292,7 +297,7 @@ def header() -> html.Div:
                                             "color": t.ACCENT,
                                         },
                                     ),
-                                    " New conversation",
+                                    " New chat",
                                 ],
                                 id=ID.NEW_TRIGGER,
                                 n_clicks=0,

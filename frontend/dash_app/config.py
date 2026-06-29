@@ -25,7 +25,7 @@ EXAMPLE_PROMPTS = [
     "Compare the Monroe and Truman doctrines.",
 ]
 
-COMPOSER_PLACEHOLDER = "Ask a queestion…"
+COMPOSER_PLACEHOLDER = "Ask a question…"
 LOADING_TEXT = "Searching the archive"
 ABSTAIN_TEXT = "No grounded sources matched this question."
 ERROR_TEXT = (
@@ -97,7 +97,7 @@ def sources_chip_label(selected_ids: list[str]) -> str:
 # --- Element ids -------------------------------------------------------------
 class ID:
     # stores
-    CONVERSATION = "conv-store"  # active conversation id
+    CHAT = "chat-store"  # active chat id
     MODEL = "model-store"  # selected model id
     SOURCES = "sources-store"  # selected source collection ids
     PENDING = "pending-store"  # in-flight query (drives the agent run)

@@ -1,10 +1,10 @@
-"""Server-side conversation state and the bridge to the agentic RAG loop.
+"""Server-side chat state and the bridge to the agentic RAG loop.
 
-Each browser conversation maps to a :class:`Conversation` holding the Pydantic
+Each browser chat maps to a :class:`Chat` holding the Pydantic
 AI message history and the run's ``AgentDeps`` (which accumulates every chunk
 the agent has seen). Keeping this server-side means the rich, non-JSON state
 — message history and ``RetrievedChunk`` objects — never has to round-trip
-through the browser; the client only carries an opaque conversation id.
+through the browser; the client only carries an opaque chat id.
 
 A new user message launches a fresh agentic loop via ``agent.run_sync``,
 mirroring ``scripts/run_agent.py`` but with the chosen model and prior history.
@@ -87,7 +87,7 @@ class DisplayMessage:
 
 
 @dataclass
-class Conversation:
+class Chat:
     """All state for one chat thread."""
 
     deps: AgentDeps
@@ -100,54 +100,54 @@ class Conversation:
         return self._next_id
 
 
-class ConversationStore:
-    """In-memory registry of conversations, keyed by an opaque id.
+class ChatStore:
+    """In-memory registry of chats, keyed by an opaque id.
 
-    The :class:`RAGClient` is shared across conversations (it only holds HTTP
-    and model clients); each conversation gets its own ``AgentDeps`` so the
+    The :class:`RAGClient` is shared across chats (it only holds HTTP
+    and model clients); each chat gets its own ``AgentDeps`` so the
     accumulated ``seen`` chunks never leak between threads.
     """
 
     def __init__(self) -> None:
         self._client = RAGClient()
-        self._conversations: dict[str, Conversation] = {}
+        self._chats: dict[str, Chat] = {}
         self._lock = threading.Lock()
 
-    def _create(self) -> Conversation:
-        return Conversation(deps=AgentDeps(client=self._client))
+    def _create(self) -> Chat:
+        return Chat(deps=AgentDeps(client=self._client))
 
-    def get(self, conv_id: str) -> Conversation:
-        """Return the conversation for ``conv_id``, creating it if needed."""
+    def get(self, chat_id: str) -> Chat:
+        """Return the chat for ``chat_id``, creating it if needed."""
         with self._lock:
-            conv = self._conversations.get(conv_id)
-            if conv is None:
-                conv = self._create()
-                self._conversations[conv_id] = conv
-            return conv
+            chat = self._chats.get(chat_id)
+            if chat is None:
+                chat = self._create()
+                self._chats[chat_id] = chat
+            return chat
 
-    def has_messages(self, conv_id: str | None) -> bool:
-        """Whether a conversation exists and has any turns (without creating it)."""
-        conv = self._conversations.get(conv_id) if conv_id else None
-        return bool(conv and conv.display)
+    def has_messages(self, chat_id: str | None) -> bool:
+        """Whether a chat exists and has any turns (without creating it)."""
+        chat = self._chats.get(chat_id) if chat_id else None
+        return bool(chat and chat.display)
 
     def is_server_healthy(self) -> bool:
         """Whether the retrieval server is warm and ready to serve requests."""
         return self._client.is_healthy()
 
-    def reset(self, conv_id: str) -> None:
-        """Forget a conversation so the next message starts a clean thread."""
+    def reset(self, chat_id: str) -> None:
+        """Forget a chat so the next message starts a clean thread."""
         with self._lock:
-            self._conversations.pop(conv_id, None)
+            self._chats.pop(chat_id, None)
 
-    def add_user_message(self, conv_id: str, text: str) -> None:
-        conv = self.get(conv_id)
-        conv.display.append(
-            DisplayMessage(id=conv.next_id(), role="user", text=text)
+    def add_user_message(self, chat_id: str, text: str) -> None:
+        chat = self.get(chat_id)
+        chat.display.append(
+            DisplayMessage(id=chat.next_id(), role="user", text=text)
         )
 
     def run_assistant(
         self,
-        conv_id: str,
+        chat_id: str,
         query: str,
         model_id: str,
         sources: list[str],
@@ -157,24 +157,24 @@ class ConversationStore:
         Failures (e.g. a missing provider API key) are caught and surfaced as a
         friendly error message rather than crashing the callback.
         """
-        conv = self.get(conv_id)
-        conv.deps.sources = sources
+        chat = self.get(chat_id)
+        chat.deps.sources = sources
         try:
             result = agent.run_sync(
                 query,
-                deps=conv.deps,
-                message_history=conv.messages,
+                deps=chat.deps,
+                message_history=chat.messages,
                 model=model_id,
                 usage_limits=UsageLimits(request_limit=REQUEST_LIMIT),
             )
-            conv.messages = result.all_messages()
-            answer, chunks = parse_agent_run(result, conv.deps)
+            chat.messages = result.all_messages()
+            answer, chunks = parse_agent_run(result, chat.deps)
             sources = [
                 SourceView.from_chunk(i, c) for i, c in enumerate(chunks, 1)
             ]
-            conv.display.append(
+            chat.display.append(
                 DisplayMessage(
-                    id=conv.next_id(),
+                    id=chat.next_id(),
                     role="assistant",
                     text=answer or ABSTAIN_TEXT,
                     sources=sources,
@@ -182,9 +182,9 @@ class ConversationStore:
                 )
             )
         except Exception:
-            conv.display.append(
+            chat.display.append(
                 DisplayMessage(
-                    id=conv.next_id(),
+                    id=chat.next_id(),
                     role="assistant",
                     text=ERROR_TEXT,
                     error=True,
@@ -193,4 +193,4 @@ class ConversationStore:
 
 
 # A single store instance backs the whole app.
-store = ConversationStore()
+store = ChatStore()

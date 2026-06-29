@@ -28,8 +28,8 @@ from dash import (
 from dash.exceptions import PreventUpdate
 
 from frontend.dash_app import theme as t
+from frontend.dash_app.components.chat import render_chat
 from frontend.dash_app.components.composer import model_menu, sources_menu
-from frontend.dash_app.components.conversation import render_conversation
 from frontend.dash_app.components.header import server_status_content
 from frontend.dash_app.components.welcome import welcome
 from frontend.dash_app.config import (
@@ -45,7 +45,7 @@ from frontend.dash_app.config import (
     model_name,
     sources_chip_label,
 )
-from frontend.dash_app.services.conversation import store
+from frontend.dash_app.services.chat import store
 
 
 # --- Sending a message -------------------------------------------------------
@@ -53,19 +53,19 @@ from frontend.dash_app.services.conversation import store
     Output(ID.CHAT_CONTENT, "children"),
     Output(ID.INPUT, "value"),
     Output(ID.PENDING, "data"),
-    Output(ID.CONVERSATION, "data"),
+    Output(ID.CHAT, "data"),
     Output(ID.POPOVER, "data", allow_duplicate=True),
     Input(ID.SEND, "n_clicks"),
     Input({"type": "example-prompt", "index": ALL}, "n_clicks"),
     State(ID.INPUT, "value"),
-    State(ID.CONVERSATION, "data"),
+    State(ID.CHAT, "data"),
     State(ID.MODEL, "data"),
     State(ID.SOURCES, "data"),
     State(ID.PENDING, "data"),
     prevent_initial_call=True,
 )
 def submit(
-    send_clicks, _example_clicks, text, conv_id, model_id, source_ids, pending
+    send_clicks, _example_clicks, text, chat_id, model_id, source_ids, pending
 ):
     if pending:  # a run is already in flight; ignore further submits
         raise PreventUpdate
@@ -86,20 +86,20 @@ def submit(
     if not query:
         raise PreventUpdate
 
-    conv_id = conv_id or uuid.uuid4().hex
+    chat_id = chat_id or uuid.uuid4().hex
     model_id = model_id or DEFAULT_MODEL_ID
     source_ids = source_ids or DEFAULT_SOURCE_IDS
-    store.add_user_message(conv_id, query)
+    store.add_user_message(chat_id, query)
 
-    conv = store.get(conv_id)
-    children = render_conversation(conv, loading=True)
+    chat = store.get(chat_id)
+    children = render_chat(chat, loading=True)
     pending = {
-        "conv_id": conv_id,
+        "chat_id": chat_id,
         "query": query,
         "model": model_id,
         "sources": source_ids,
     }
-    return children, "", pending, conv_id, None
+    return children, "", pending, chat_id, None
 
 
 @callback(
@@ -112,13 +112,13 @@ def run_agent(pending):
     if not pending:
         raise PreventUpdate
     store.run_assistant(
-        pending["conv_id"],
+        pending["chat_id"],
         pending["query"],
         pending["model"],
         pending["sources"],
     )
-    conv = store.get(pending["conv_id"])
-    return render_conversation(conv, loading=False), None
+    chat = store.get(pending["chat_id"])
+    return render_chat(chat, loading=False), None
 
 
 # --- Server warm-up status ---------------------------------------------------
@@ -149,21 +149,21 @@ def poll_server_status(n_intervals):
     return server_status_content("warming"), False
 
 
-# --- New conversation --------------------------------------------------------
+# --- New chat --------------------------------------------------------
 @callback(
     Output(ID.CHAT_CONTENT, "children", allow_duplicate=True),
-    Output(ID.CONVERSATION, "data", allow_duplicate=True),
+    Output(ID.CHAT, "data", allow_duplicate=True),
     Output(ID.PENDING, "data", allow_duplicate=True),
     Output(ID.POPOVER, "data", allow_duplicate=True),
     Input(ID.CONFIRM_NEW, "n_clicks"),
-    State(ID.CONVERSATION, "data"),
+    State(ID.CHAT, "data"),
     prevent_initial_call=True,
 )
-def confirm_new(n_clicks, conv_id):
+def confirm_new(n_clicks, chat_id):
     if not n_clicks:
         raise PreventUpdate
-    if conv_id:
-        store.reset(conv_id)
+    if chat_id:
+        store.reset(chat_id)
     return welcome(), uuid.uuid4().hex, None, None
 
 
@@ -229,17 +229,17 @@ def select_sources(_clicks, current):
     Input(ID.BACKDROP, "n_clicks"),
     Input(ID.CANCEL_NEW, "n_clicks"),
     State(ID.POPOVER, "data"),
-    State(ID.CONVERSATION, "data"),
+    State(ID.CHAT, "data"),
     prevent_initial_call=True,
 )
-def toggle_popover(_a, _n, _m, _s, _bd, _cancel, current, conv_id):
+def toggle_popover(_a, _n, _m, _s, _bd, _cancel, current, chat_id):
     trigger = ctx.triggered_id
     if trigger in (ID.BACKDROP, ID.CANCEL_NEW):
         return None
 
     if trigger == ID.NEW_TRIGGER:
         # Nothing to clear → no confirmation needed.
-        target = POP_NEWCONFIRM if store.has_messages(conv_id) else None
+        target = POP_NEWCONFIRM if store.has_messages(chat_id) else None
     else:
         target = {
             ID.ABOUT_TRIGGER: POP_ABOUT,
