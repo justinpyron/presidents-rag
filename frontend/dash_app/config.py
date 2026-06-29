@@ -4,8 +4,6 @@ Copy, the model registry, the source collections and all element ids live
 here so components and callbacks share one vocabulary.
 """
 
-from frontend.agent import MODEL
-
 # --- Copy --------------------------------------------------------------------
 APP_NAME = "Presidential Archive"
 GITHUB_URL = "https://github.com/justinpyron/presidents-rag"
@@ -35,9 +33,9 @@ ERROR_TEXT = (
 
 # --- Models ------------------------------------------------------------------
 # The picker overrides the model per run. ``id`` is the Pydantic AI model
-# string passed to ``agent.run_sync(model=...)``. The default tracks the model
-# the agent is configured with, so the app works out of the box with only an
-# OpenAI key; Claude and Gemini require ANTHROPIC_API_KEY / GEMINI_API_KEY.
+# string passed to ``agent.run_sync(model=...)``.
+DEFAULT_MODEL_ID = "openai:gpt-5.4-mini"
+
 MODELS = [
     {
         "id": "anthropic:claude-sonnet-4-5",
@@ -45,7 +43,7 @@ MODELS = [
         "desc": "Balanced reasoning & speed",
     },
     {
-        "id": MODEL,  # "openai:gpt-5.4-mini"
+        "id": DEFAULT_MODEL_ID,
         "name": "GPT-5.4 mini",
         "desc": "OpenAI flagship, fast & grounded",
     },
@@ -55,7 +53,6 @@ MODELS = [
         "desc": "Long-context reasoning",
     },
 ]
-DEFAULT_MODEL_ID = MODEL
 
 
 def model_name(model_id: str) -> str:
