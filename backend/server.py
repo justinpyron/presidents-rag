@@ -49,6 +49,7 @@ volume = modal.Volume.from_name(MODAL_VOLUME_NAME)
     secrets=[db_secret],
     gpu="T4",
     scaledown_window=600,
+    max_containers=1,
 )
 class Server:
     """Serves vector retrieval and cross-encoder reranking."""
