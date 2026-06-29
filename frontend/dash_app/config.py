@@ -11,10 +11,9 @@ APP_NAME = "Presidential Archive"
 GITHUB_URL = "https://github.com/justinpyron/presidents-rag"
 
 ABOUT_LEAD = (
-    "Presidential Archive is a personal project exploring agentic "
-    "retrieval-augmented generation. Ask a question and the agent composes its "
-    "own searches over an encyclopedia of the U.S. presidents, reads what it "
-    "finds, and writes an answer you can trace back to its sources."
+    "Presidential Archive is an agentic RAG system. "
+    "Ask a question and an AI agent composes its own searches over a knowledge base of "
+    "the U.S. presidents, reads what it finds, and writes an answer you can trace back to its sources."
 )
 ABOUT_BUILT_WITH = "Built with Pydantic AI & Dash."
 
