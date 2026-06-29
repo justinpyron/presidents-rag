@@ -80,6 +80,9 @@ body { background: #f4efe4; }
 .hover-ink { transition: color .12s ease; }
 .hover-ink:hover { color: #5e5141; }
 
+.hover-accent-fill { transition: background-color .12s ease; }
+.hover-accent-fill:hover { background: #6b332d; } /* ACCENT_HOVER */
+
 .hover-border { transition: border-color .12s ease; }
 .hover-border:hover { border-color: #d2c3a2; }
 

@@ -77,7 +77,7 @@ def _about_popover() -> html.Div:
     return html.Div(
         id=ID.ABOUT_POP,
         className="hidden",
-        style=t.popover(360),
+        style={**t.popover(360), "right": "auto", "left": 0},
         children=[
             html.Div(
                 "About this project",
@@ -203,24 +203,6 @@ def _newconfirm_popover() -> html.Div:
 
 
 def header() -> html.Div:
-    info_badge = html.Span(
-        "i",
-        style={
-            "width": "16px",
-            "height": "16px",
-            "borderRadius": "50%",
-            "border": "1.5px solid #b6a587",
-            "color": t.MUTED,
-            "fontFamily": "Georgia, serif",
-            "fontStyle": "italic",
-            "fontWeight": 700,
-            "fontSize": "10px",
-            "display": "inline-flex",
-            "alignItems": "center",
-            "justifyContent": "center",
-        },
-    )
-
     return html.Div(
         style={
             "flex": "none",
@@ -251,6 +233,42 @@ def header() -> html.Div:
                             "letterSpacing": ".2px",
                         },
                     ),
+                    # Filled-accent info circle: a quiet but visible entry point
+                    # to the "About this project" popover.
+                    html.Div(
+                        style={
+                            "position": "relative",
+                            "display": "inline-flex",
+                            "alignItems": "center",
+                        },
+                        children=[
+                            html.Div(
+                                "i",
+                                id=ID.ABOUT_TRIGGER,
+                                n_clicks=0,
+                                title="How it works",
+                                className="hover-accent-fill",
+                                style={
+                                    "width": "18px",
+                                    "height": "18px",
+                                    "borderRadius": "50%",
+                                    "background": t.ACCENT,
+                                    "color": t.ON_ACCENT,
+                                    "fontFamily": "Georgia, serif",
+                                    "fontStyle": "italic",
+                                    "fontWeight": 700,
+                                    "fontSize": "11px",
+                                    "lineHeight": "1",
+                                    "display": "inline-flex",
+                                    "alignItems": "center",
+                                    "justifyContent": "center",
+                                    "cursor": "pointer",
+                                    "flex": "none",
+                                },
+                            ),
+                            _about_popover(),
+                        ],
+                    ),
                 ],
             ),
             # actions
@@ -262,28 +280,6 @@ def header() -> html.Div:
                 },
                 children=[
                     server_status(),
-                    html.Div(
-                        style={"position": "relative"},
-                        children=[
-                            html.Div(
-                                [info_badge, " About"],
-                                id=ID.ABOUT_TRIGGER,
-                                n_clicks=0,
-                                className="hover-ink",
-                                style={
-                                    "display": "inline-flex",
-                                    "alignItems": "center",
-                                    "gap": "6px",
-                                    "fontFamily": t.SANS,
-                                    "fontWeight": 500,
-                                    "fontSize": "13px",
-                                    "color": t.MUTED,
-                                    "cursor": "pointer",
-                                },
-                            ),
-                            _about_popover(),
-                        ],
-                    ),
                     html.Div(
                         style={"position": "relative"},
                         children=[
