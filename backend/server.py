@@ -47,7 +47,7 @@ volume = modal.Volume.from_name(MODAL_VOLUME_NAME)
     image=image,
     volumes={"/data": volume},
     secrets=[db_secret],
-    cpu=1,
+    gpu="T4",
     scaledown_window=600,
 )
 class Server:
