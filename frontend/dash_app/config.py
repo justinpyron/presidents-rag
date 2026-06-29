@@ -17,18 +17,15 @@ ABOUT_LEAD = (
 )
 ABOUT_BUILT_WITH = "Built with Pydantic AI & Dash."
 
-WELCOME_HEADING = "A reference desk for the U.S. presidents"
-WELCOME_SUBTEXT = (
-    "Ask anything about the presidents. Every answer is drawn from encyclopedia "
-    "articles, with its sources kept close at hand."
-)
+WELCOME_HEADING = "A reference desk for American presidents"
+WELCOME_SUBTEXT = "Ask anything about the presidents. An answer grounded in reliable sources is returned."
 EXAMPLE_PROMPTS = [
     "Who succeeded the president who purchased Alaska?",
     "Which U.S. president was the tallest?",
     "Compare the Monroe and Truman doctrines.",
 ]
 
-COMPOSER_PLACEHOLDER = "Ask about any U.S. president…"
+COMPOSER_PLACEHOLDER = "Ask a queestion…"
 LOADING_TEXT = "Searching the archive"
 ABSTAIN_TEXT = "No grounded sources matched this question."
 ERROR_TEXT = (
