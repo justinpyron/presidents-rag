@@ -80,8 +80,8 @@ body { background: #f4efe4; }
 .hover-ink { transition: color .12s ease; }
 .hover-ink:hover { color: #5e5141; }
 
-.hover-accent-fill { transition: background-color .12s ease; }
-.hover-accent-fill:hover { background: #6b332d; } /* ACCENT_HOVER */
+.hover-icon-fill { background: #8a7c66; transition: background-color .12s ease; } /* MUTED */
+.hover-icon-fill:hover { background: #7c3b34; } /* ACCENT */
 
 .hover-border { transition: border-color .12s ease; }
 .hover-border:hover { border-color: #d2c3a2; }

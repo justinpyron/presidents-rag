@@ -228,7 +228,7 @@ def header() -> html.Div:
                         style={
                             "fontFamily": t.SERIF,
                             "fontWeight": 600,
-                            "fontSize": "18px",
+                            "fontSize": "20px",
                             "color": t.INK,
                             "letterSpacing": ".2px",
                         },
@@ -247,12 +247,11 @@ def header() -> html.Div:
                                 id=ID.ABOUT_TRIGGER,
                                 n_clicks=0,
                                 title="How it works",
-                                className="hover-accent-fill",
+                                className="hover-icon-fill",
                                 style={
                                     "width": "18px",
                                     "height": "18px",
                                     "borderRadius": "50%",
-                                    "background": t.ACCENT,
                                     "color": t.ON_ACCENT,
                                     "fontFamily": "Georgia, serif",
                                     "fontStyle": "italic",
