@@ -7,7 +7,7 @@ Run locally with::
 The agent talks to the retrieval server over HTTP (``SERVER_URL``) and to the
 model providers directly, so the usual environment variables must be set (see
 ``.env``): ``OPENAI_API_KEY`` / ``SERVER_URL`` are required, and Claude/Gemini
-in the model picker additionally need ``ANTHROPIC_API_KEY`` / ``GEMINI_API_KEY``.
+in the model picker additionally need ``ANTHROPIC_API_KEY`` / ``GOOGLE_API_KEY``.
 """
 
 import os
@@ -35,6 +35,10 @@ load_dotenv()
 logfire.configure(
     service_name="presidents-rag",
     environment=os.getenv("LOGFIRE_ENV", "dev"),
+    # Send traces only when a write token is configured (LOGFIRE_TOKEN). Without
+    # this, configure() raises at import time when no token is found, which would
+    # crash the app on startup (e.g. in any environment that lacks the token).
+    send_to_logfire="if-token-present",
 )
 
 FONTS = (
