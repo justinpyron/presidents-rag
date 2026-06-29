@@ -51,14 +51,14 @@ class RAGClient:
         self,
         query: str,
         top_k: int,
-        source: str | None = None,
+        sources: list[str] | None = None,
     ) -> list[RetrievedChunk]:
         response = self.http_client.post(
             "/retrieve",
             json={
                 "query": query,
                 "top_k": top_k,
-                "source": source,
+                "sources": sources,
             },
         )
         response.raise_for_status()
@@ -96,14 +96,14 @@ class RAGClient:
     def ask(
         self,
         query: str,
-        source: str | None = None,
+        sources: list[str] | None = None,
         top_k_retrieval: int = 100,
         top_k_rerank: int = 20,
     ) -> tuple[str, list[RetrievedChunk]]:
         chunks = self.retrieve(
             query=query,
             top_k=top_k_retrieval,
-            source=source,
+            sources=sources,
         )
         top_chunks = self.rerank(query, chunks, top_k_rerank)
         prompt = self.prompt_template.render(

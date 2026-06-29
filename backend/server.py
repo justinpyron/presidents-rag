@@ -16,7 +16,7 @@ SENTENCE_TRANSFORMER_PATH = (
     "/data/weights/sentence-transformers_all-MiniLM-L6-v2"
 )
 CROSS_ENCODER_PATH = "/data/weights/cross-encoder_ms-marco-MiniLM-L-6-v2"
-VECTOR_STORE_CONFIG_ID = 1
+VECTOR_STORE_CONFIG_ID = 3
 
 # The runtime queries Postgres through the pooled connection. The value is read
 # from the deploy environment (GitHub secrets in CI, .env locally) and injected
@@ -86,7 +86,7 @@ class Server:
                     vector_store_config_id=VECTOR_STORE_CONFIG_ID,
                     query=request.query,
                     top_k=request.top_k,
-                    source=request.source,
+                    sources=request.sources,
                 )
             finally:
                 session.close()

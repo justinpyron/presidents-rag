@@ -21,7 +21,12 @@ from frontend.dash_app import theme as t
 from frontend.dash_app.components.composer import composer
 from frontend.dash_app.components.header import header
 from frontend.dash_app.components.welcome import welcome
-from frontend.dash_app.config import APP_NAME, DEFAULT_MODEL_ID, ID
+from frontend.dash_app.config import (
+    APP_NAME,
+    DEFAULT_MODEL_ID,
+    DEFAULT_SOURCE_IDS,
+    ID,
+)
 
 # Configure logfire before the app is built so the agent's instrumentation
 # (frontend.agent's Instrumentation capability) is exported on every run.
@@ -52,6 +57,7 @@ def _stores() -> list:
     return [
         dcc.Store(id=ID.CONVERSATION, data=None),
         dcc.Store(id=ID.MODEL, data=DEFAULT_MODEL_ID),
+        dcc.Store(id=ID.SOURCES, data=DEFAULT_SOURCE_IDS),
         dcc.Store(id=ID.PENDING, data=None),
         dcc.Store(id=ID.POPOVER, data=None),
         dcc.Store(id=ID.SCROLL_DUMMY),
@@ -75,7 +81,7 @@ app.layout = html.Div(
             style={"flex": "1", "overflow": "auto"},
             children=html.Div(id=ID.CHAT_CONTENT, children=welcome()),
         ),
-        composer(DEFAULT_MODEL_ID),
+        composer(DEFAULT_MODEL_ID, DEFAULT_SOURCE_IDS),
         # Full-screen click target that closes any open popover.
         html.Div(
             id=ID.BACKDROP,

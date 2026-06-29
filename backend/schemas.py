@@ -23,7 +23,7 @@ class RetrievedChunk(BaseModel):
 class RetrieveRequest(BaseModel):
     query: str
     top_k: int
-    source: str | None = None
+    sources: list[str] | None = None
 
 
 class RerankRequest(BaseModel):

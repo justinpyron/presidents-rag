@@ -69,7 +69,7 @@ body { background: #f4efe4; }
 .example-card { transition: border-color .12s ease; }
 .example-card:hover { border-color: #c8a8a2; }
 
-.menu-row:hover { background: #f5eeddb0 !important; }
+.menu-row:hover { background: #f0e7d6; }
 
 /* Muted by default (composer empty = not valid to submit); the .active class
    is toggled on by a clientside callback as soon as there's input. */
