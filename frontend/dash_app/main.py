@@ -62,6 +62,7 @@ def _stores() -> list:
         dcc.Store(id=ID.POPOVER, data=None),
         dcc.Store(id=ID.SCROLL_DUMMY),
         dcc.Store(id=ID.RESIZE_DUMMY),
+        dcc.Interval(id=ID.SERVER_POLL, interval=3000, n_intervals=0),
     ]
 
 

@@ -11,6 +11,67 @@ from frontend.dash_app.config import (
     ID,
 )
 
+SERVER_STATUS_LABELS = {
+    "warming": "Server: Warming up",
+    "ready": "Server: Ready",
+    "unavailable": "Server: Unavailable",
+}
+
+
+def _server_status_mark(state: str) -> html.Span:
+    """The leading glyph: a pulsing dot while warming, otherwise static."""
+    if state == "ready":
+        return html.Span(
+            "✓",
+            style={
+                "color": t.ACCENT,
+                "fontSize": "12px",
+                "fontWeight": 700,
+                "lineHeight": "1",
+            },
+        )
+    cls = (
+        "server-dot server-dot--down"
+        if state == "unavailable"
+        else "server-dot server-dot--warming"
+    )
+    return html.Span(className=cls)
+
+
+def server_status_content(state: str) -> list:
+    """Inner ``[mark, label]`` for the header server-status indicator.
+
+    Shared by the initial render and the polling callback so both produce an
+    identical structure for each ``state`` ("warming" | "ready" |
+    "unavailable").
+    """
+    label = SERVER_STATUS_LABELS.get(state, SERVER_STATUS_LABELS["warming"])
+    return [
+        _server_status_mark(state),
+        html.Span(
+            label,
+            style={
+                "fontFamily": t.SANS,
+                "fontWeight": 500,
+                "fontSize": "13px",
+                "color": t.MUTED,
+            },
+        ),
+    ]
+
+
+def server_status(state: str = "warming") -> html.Div:
+    """Header indicator reporting whether the retrieval server is warm."""
+    return html.Div(
+        id=ID.SERVER_STATUS,
+        style={
+            "display": "inline-flex",
+            "alignItems": "center",
+            "gap": "7px",
+        },
+        children=server_status_content(state),
+    )
+
 
 def _about_popover() -> html.Div:
     return html.Div(
@@ -200,6 +261,7 @@ def header() -> html.Div:
                     "gap": "14px",
                 },
                 children=[
+                    server_status(),
                     html.Div(
                         style={"position": "relative"},
                         children=[

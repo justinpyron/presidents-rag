@@ -108,6 +108,7 @@ class ID:
     POPOVER = "popover-store"  # name of the open popover, or None
     SCROLL_DUMMY = "scroll-dummy"  # autoscroll callback sink
     RESIZE_DUMMY = "resize-dummy"  # textarea autosize callback sink
+    SERVER_POLL = "server-poll"  # interval that polls server health
 
     # layout
     CHAT_SCROLL = "chat-scroll"
@@ -115,6 +116,7 @@ class ID:
     BACKDROP = "backdrop"
 
     # header
+    SERVER_STATUS = "server-status"  # warm-up indicator container
     ABOUT_TRIGGER = "about-trigger"
     ABOUT_POP = "about-pop"
     NEW_TRIGGER = "new-trigger"
