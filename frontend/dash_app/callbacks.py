@@ -161,7 +161,6 @@ def select_model(_clicks):
     Output(ID.SOURCES_CHIP_LABEL, "children"),
     Output(ID.SOURCES_MENU, "children"),
     Output(f"{ID.SOURCES_MENU}-count", "children"),
-    Output(ID.POPOVER, "data", allow_duplicate=True),
     Input({"type": "source-option", "index": ALL}, "n_clicks"),
     State(ID.SOURCES, "data"),
     prevent_initial_call=True,
@@ -188,7 +187,6 @@ def select_sources(_clicks, current):
         sources_chip_label(selected),
         sources_menu(selected),
         count,
-        None,
     )
 
 
