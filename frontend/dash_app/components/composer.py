@@ -91,7 +91,6 @@ def model_menu(selected_id: str) -> list:
                     "padding": "9px 10px",
                     "borderRadius": "9px",
                     "cursor": "pointer",
-                    "background": "#f0e7d6" if active else "transparent",
                 },
                 children=[
                     html.Div(
@@ -166,7 +165,6 @@ def sources_menu(selected_ids: list[str]) -> list:
                     "padding": "9px 10px",
                     "borderRadius": "9px",
                     "cursor": "pointer",
-                    "background": "#f0e7d6" if active else "transparent",
                 },
                 children=[
                     html.Span(
