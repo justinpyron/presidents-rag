@@ -1,8 +1,9 @@
 """Chunk documents, embed them, and load into the vector store database."""
 
 import argparse
+import json
 import time
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -32,6 +33,16 @@ class ChunkRecord:
 MODELS = {
     "sentence-transformers/all-MiniLM-L6-v2": EmbeddingModelConfig(
         weights_path="weights/sentence-transformers_all-MiniLM-L6-v2",
+        data_model=ChunkDim384,
+        dim=384,
+    ),
+    "sentence-transformers/all-MiniLM-L12-v2": EmbeddingModelConfig(
+        weights_path="weights/sentence-transformers_all-MiniLM-L12-v2",
+        data_model=ChunkDim384,
+        dim=384,
+    ),
+    "BAAI/bge-small-en-v1.5": EmbeddingModelConfig(
+        weights_path="weights/BAAI_bge-small-en-v1.5",
         data_model=ChunkDim384,
         dim=384,
     ),
@@ -67,6 +78,23 @@ def chunk_txt_files(
                 )
             )
     return chunks
+
+
+def save_chunks(
+    chunks: list[ChunkRecord],
+    chunk_size: int,
+    chunk_overlap: int,
+) -> Path:
+    out_dir = PROJECT_ROOT / "chunks"
+    out_dir.mkdir(exist_ok=True)
+    path = out_dir / f"chunks_cs{chunk_size}_co{chunk_overlap}.json"
+    path.write_text(
+        json.dumps(
+            [asdict(chunk) for chunk in chunks], indent=2, ensure_ascii=False
+        ),
+        encoding="utf-8",
+    )
+    return path
 
 
 def ingest(
@@ -165,6 +193,12 @@ def main() -> None:
         default=64,
         help="Batch size for embedding chunks.",
     )
+    parser.add_argument(
+        "-s",
+        "--save-chunks",
+        action="store_true",
+        help="Save all chunks to a local JSON file before ingesting.",
+    )
     args = parser.parse_args()
 
     if args.model not in MODELS:
@@ -189,6 +223,10 @@ def main() -> None:
             f"Chunked {len(source_chunks)} chunks from {source!r} "
             f"({documents_folder})"
         )
+
+    if args.save_chunks:
+        path = save_chunks(chunks, args.chunk_size, args.chunk_overlap)
+        print(f"Saved {len(chunks)} chunks to {path}")
 
     num_chunks = ingest(
         chunks=chunks,

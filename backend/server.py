@@ -11,12 +11,11 @@ import modal
 
 MODAL_APP_NAME = "presidents-rag"
 MODAL_VOLUME_NAME = "presidents-rag"
+MOUNT_PATH = "/data"
 
-SENTENCE_TRANSFORMER_PATH = (
-    "/data/weights/sentence-transformers_all-MiniLM-L6-v2"
-)
-CROSS_ENCODER_PATH = "/data/weights/cross-encoder_ms-marco-MiniLM-L-6-v2"
-VECTOR_STORE_CONFIG_ID = 3
+VECTOR_STORE_CONFIG_ID = 1
+SENTENCE_TRANSFORMER_PATH = "weights/sentence-transformers_all-MiniLM-L6-v2"
+CROSS_ENCODER_PATH = "weights/cross-encoder_ms-marco-MiniLM-L6-v2"
 
 # The runtime queries Postgres through the pooled connection. The value is read
 # from the deploy environment (GitHub secrets in CI, .env locally) and injected
@@ -45,7 +44,7 @@ volume = modal.Volume.from_name(MODAL_VOLUME_NAME)
 
 @app.cls(
     image=image,
-    volumes={"/data": volume},
+    volumes={MOUNT_PATH: volume},
     secrets=[db_secret],
     gpu="T4",
     scaledown_window=600,
@@ -58,8 +57,12 @@ class Server:
     def load_models(self):
         from sentence_transformers import CrossEncoder, SentenceTransformer
 
-        self.embedder = SentenceTransformer(SENTENCE_TRANSFORMER_PATH)
-        self.cross_encoder = CrossEncoder(CROSS_ENCODER_PATH)
+        embedder_path = os.path.join(MOUNT_PATH, SENTENCE_TRANSFORMER_PATH)
+        cross_encoder_path = os.path.join(MOUNT_PATH, CROSS_ENCODER_PATH)
+        print(f"Loading embedder from: {embedder_path}")
+        print(f"Loading cross-encoder from: {cross_encoder_path}")
+        self.embedder = SentenceTransformer(embedder_path)
+        self.cross_encoder = CrossEncoder(cross_encoder_path)
 
     @modal.asgi_app()
     def fastapi_server(self):
