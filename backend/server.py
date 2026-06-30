@@ -13,9 +13,9 @@ MODAL_APP_NAME = "presidents-rag"
 MODAL_VOLUME_NAME = "presidents-rag"
 MOUNT_PATH = "/data"
 
-VECTOR_STORE_CONFIG_ID = 3
+VECTOR_STORE_CONFIG_ID = 1
 SENTENCE_TRANSFORMER_PATH = "weights/sentence-transformers_all-MiniLM-L6-v2"
-CROSS_ENCODER_PATH = "weights/cross-encoder_ms-marco-MiniLM-L-6-v2"
+CROSS_ENCODER_PATH = "weights/cross-encoder_ms-marco-MiniLM-L6-v2"
 
 # The runtime queries Postgres through the pooled connection. The value is read
 # from the deploy environment (GitHub secrets in CI, .env locally) and injected
