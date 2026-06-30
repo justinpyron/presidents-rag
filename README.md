@@ -1,61 +1,128 @@
 # presidents-rag
-Use Wikipedia knowledge base and Retrieval-Augmented Generation (RAG) to answer questions about American presidents.
+**Presidential Archive** is an *agentic* Retrieval-Augmented Generation (RAG) system that answers questions about U.S. presidents. Rather than running a fixed
+`retrieve → rerank → generate` pipeline, an AI agent composes its own searches over a knowledge base, reads what it finds, and writes an answer you can trace back to its sources.
+
+The agent (built with [Pydantic AI](https://ai.pydantic.dev/)) is given a single `search_knowledge_base` tool and decides *when* to search, *what* to search for, and *how many* searches to issue — adapting its strategy to the difficulty of each question. For example, simple fact lookups may use a single search, while complex multi-hop questions may use several. Its structured output cites the specific knowledge base items that support the answer.
+
+# Architecture
+The system is split into three independently deployed tiers:
+
+```
+┌──────────────────────┐     HTTP      ┌──────────────────────┐     SQL      ┌──────────────────────┐
+│   Dash chat app      │ ───────────▶  │  Inference server    │ ──────────▶  │  Postgres + pgvector │
+│   (Cloud Run)        │  retrieve/    │  (Modal, GPU)        │  vector      │  (Neon)              │
+│                      │  rerank       │  embedder +          │  search      │  embedded chunks     │
+│  + Pydantic AI agent │ ◀───────────  │  cross-encoder       │ ◀──────────  │                      │
+└──────────┬───────────┘     chunks    └──────────────────────┘              └──────────────────────┘
+           │
+           ▼  generation
+   OpenAI / Anthropic / Google
+```
+
+1. **Frontend** ([`frontend/`](frontend/)) — a [Dash](https://dash.plotly.com/) chat UI plus the agentic loop. The agent runs in the web process, calls the inference server over HTTP for retrieval/reranking, and calls a model provider directly for generation. Deployed to Cloud Run.
+2. **Inference server** ([`backend/`](backend/)) — a FastAPI app on [Modal](https://modal.com/) that hosts the embedding and cross-encoder models on a GPU and exposes `/retrieve`, `/rerank`, and `/health`.
+3. **Vector store** ([`db/`](db/)) — a Postgres database (Neon) with the [`pgvector`](https://github.com/pgvector/pgvector) extension storing embedded document chunks. Schema is managed with [Alembic](https://alembic.sqlalchemy.org/).
 
 # Project Organization
 ```
-├── README.md                  <- Overview
-├── app.py                     <- Streamlit web app frontend
-├── backend.py                 <- RAG logic used in the app
-├── people.py                  <- List of people to include in the knowledge base
-├── scrape_wikipedia.py        <- Extract text from Wikipedia articles
-├── text/                      <- Folder with scraped wikipedia articles in .txt files
-├── vector_store.py            <- Class for interfacing with vector store of embedded text chunks
-├── vector_store.pickle        <- Saved vector store object
-├── pyproject.toml             <- Poetry config specifying Python environment dependencies
-├── poetry.lock                <- Locked dependencies to ensure consistent installs
-├── .pre-commit-config.yaml    <- Linting configs
+├── README.md                    <- Overview
+├── frontend/
+│   ├── agent.py                 <- Agentic RAG loop (Pydantic AI agent + retrieval tool)
+│   ├── client.py                <- HTTP client for the inference server (retrieve/rerank/health)
+│   └── dash_app/                <- Dash chat UI (layout, components, callbacks, services)
+├── backend/
+│   ├── server.py                <- Modal + FastAPI inference server (model loading, HTTP wiring)
+│   ├── retrieval.py             <- Pure retrieve/rerank logic (shared by server and evals)
+│   └── schemas.py               <- Request/response models
+├── db/
+│   ├── models.py                <- SQLAlchemy models (vector store config + embedded chunks)
+│   └── session.py               <- Database session factory
+├── alembic/                     <- Database migrations
+├── scripts/
+│   ├── scrape_wikipedia.py      <- Scrape Wikipedia articles
+│   ├── scrape_miller_center.py  <- Scrape Miller Center essays
+│   ├── ingest.py                <- Chunk, embed, and load documents into the vector store
+│   ├── download_weights.py      <- Download model weights locally from Hugging Face
+│   └── run_agent.py             <- Run the agent interactively from the terminal
+├── evals/                       <- Retrieval and generation evals (pydantic-evals)
+├── text/                        <- Scraped source articles (wikipedia/, miller_center/)
+├── Dockerfile                   <- Container image for the Dash app (Cloud Run)
+├── pyproject.toml               <- Project + dependency config (uv)
+├── uv.lock                      <- Locked dependencies
+└── .pre-commit-config.yaml      <- Linting configs
 ```
 
 # Installation
-This project uses [Poetry](https://python-poetry.org/docs/) to manage its Python environment.
+This project uses [uv](https://docs.astral.sh/uv/) to manage its Python environment.
 
-1. Install Poetry
+1. Install uv
 ```
-curl -sSL https://install.python-poetry.org | python3 -
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-2. Install dependencies
+2. Install dependencies (the `dev` group includes the ingest/eval/migration tooling)
 ```
-poetry install
+uv sync --group dev
 ```
+
+3. Configure environment variables in a `.env` file:
+
+| Variable | Used for |
+| --- | --- |
+| `SERVER_URL` | Base URL of the inference server |
+| `OPENAI_API_KEY` | Default generation model (required) |
+| `ANTHROPIC_API_KEY` / `GOOGLE_API_KEY` | Claude / Gemini options in the model picker |
+| `DATABASE_URL_POOLED` | Pooled Postgres connection (runtime queries) |
+| `DATABASE_URL_DIRECT` | Direct Postgres connection (Alembic migrations) |
+| `LOGFIRE_TOKEN` | Optional — exports agent traces to Logfire when set |
 
 # Usage
-The app can be run locally with
+### Run the chat app locally
 ```
-poetry run streamlit run app.py
+uv run python -m frontend.dash_app.main
+```
+Then open http://127.0.0.1:8050. The app talks to the inference server at `SERVER_URL`, so a server
+must be reachable. You can deploy one with `uv run modal deploy backend/server.py`, or create a temporary server for local development with `uv run modal serve backend/server.py`.
+
+### Build the knowledge base
+Scrape sources into `text/`, then chunk, embed, and load them into the vector store:
+```
+uv run python scripts/scrape_wikipedia.py
+uv run python scripts/scrape_miller_center.py
+uv run python scripts/ingest.py \
+    --model sentence-transformers/all-MiniLM-L6-v2 \
+    --chunk-size 1000 \
+    --chunk-overlap 200
 ```
 
 # How it works
-### Knowledge Base
-Answers are based on the Wikipedia articles of all US Presidents and Secretaries of State.
-These articles were scraped using [Wikipedia's OpenSearch API](https://www.mediawiki.org/wiki/API:Opensearch).
-The `text/` directory contains the raw text files.
+### Knowledge base
+Answers are grounded in articles about every U.S. president, drawn from two
+source collections that can be toggled in the UI:
+- **Wikipedia** — crowd-sourced encyclopedia articles.
+- **Miller Center** — scholarly essays from the University of Virginia.
+
+Each article is split into overlapping chunks, embedded, and stored in Postgres with `pgvector`.
 
 ### Models
-1. A model to create vector embeddings of documents and questions. I use an [SBERT Sentence Transformer](https://sbert.net/docs/sentence_transformer/usage/usage.html).
-2. A model to compute similarity between a query and context document (a "re-ranker"). I use an [SBERT Cross Encoder](https://sbert.net/docs/cross_encoder/usage/usage.html).
-3. A generative chatbot to answer context-enriched queries. I use OpenAI models.
+1. **Embedder** — an [SBERT Sentence Transformer](https://sbert.net/docs/sentence_transformer/usage/usage.html) embeds documents and queries for vector search.
+2. **Re-ranker** — an [SBERT Cross Encoder](https://sbert.net/docs/cross_encoder/usage/usage.html) reorders retrieved chunks by query relevance.
+3. **Agent orchestrator** — a Pydantic AI agent drives the conversation and generation. It defaults to OpenAI, with Anthropic and Google models selectable in the UI.
 
-### Workflow
-In simple terms, the RAG system transforms a user's query into a prompt enriched with context from the knowledge base.
+### Agentic workflow
+**Offline (ingestion):** scrape articles → chunk them → embed each chunk → load into the vector store.
 
-###### Offline
-1. Create a knowledge base of documents.
-2. Create a vector embedding of each document in the knowledge base.
+**At inference time**, the agent runs a tool-calling loop:
+1. The agent reads the question and decides whether (and how) to search.
+2. Each `search_knowledge_base` call embeds the query, retrieves the nearest chunks by cosine similarity (`/retrieve`), and refines them with the cross-encoder re-ranker (`/rerank`).
+3. The agent inspects the returned chunks and may search again — rewriting its query, following a multi-hop chain, or gathering independent facts — up to a request limit.
+4. When it has enough evidence, it writes an answer grounded strictly in the retrieved chunks and cites the supporting chunks by id. If the knowledge base lacks the answer, it says so instead of guessing.
 
-###### At inference time
-1. Create a vector embedding of the question you want to ask.
-2. Apply cosine similarity to the knowledge base embeddings to find the documents most similar to the question.
-3. Refine the set of most similar documents using the re-ranker model.
-4. Create a prompt that supplements the question with the most similar documents.
-5. Submit the prompt to the generative chatbot to generate an answer.
+# Deployment
+A GitHub Actions workflow ([`.github/workflows/build-and-deploy.yml`](.github/workflows/build-and-deploy.yml))
+runs the full pipeline on demand: apply Alembic migrations → deploy the Modal inference server → build
+the Docker image and deploy the Dash app to Cloud Run.
+
+# Evals
+The [`evals/`](evals/) directory contains retrieval and generation evals built on
+[pydantic-evals](https://ai.pydantic.dev/evals/), reusing the same retrieval code path as the server.
