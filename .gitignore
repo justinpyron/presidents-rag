@@ -6,4 +6,5 @@ notebooks
 weights
 .cursor/
 text/
+chunks/
 .neon
