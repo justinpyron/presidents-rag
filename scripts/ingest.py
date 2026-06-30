@@ -31,8 +31,8 @@ class ChunkRecord:
 
 
 MODELS = {
-    "BAAI/bge-small-en-v1.5": EmbeddingModelConfig(
-        weights_path="weights/BAAI_bge-small-en-v1.5",
+    "sentence-transformers/all-MiniLM-L6-v2": EmbeddingModelConfig(
+        weights_path="weights/sentence-transformers_all-MiniLM-L6-v2",
         data_model=ChunkDim384,
         dim=384,
     ),
@@ -41,8 +41,8 @@ MODELS = {
         data_model=ChunkDim384,
         dim=384,
     ),
-    "sentence-transformers/all-MiniLM-L6-v2": EmbeddingModelConfig(
-        weights_path="weights/sentence-transformers_all-MiniLM-L6-v2",
+    "BAAI/bge-small-en-v1.5": EmbeddingModelConfig(
+        weights_path="weights/BAAI_bge-small-en-v1.5",
         data_model=ChunkDim384,
         dim=384,
     ),
