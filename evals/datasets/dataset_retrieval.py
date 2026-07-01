@@ -137,6 +137,32 @@ CASES_LEXICAL = [
             "miller_center$40_ronald_reagan_4_foreign-affairs.txt$16349",
         ],
     ),
+    Case(
+        name="lexical_08",
+        inputs="Who wrote 'Maine and her soil, or BLOOD!'?",
+        expected_output=[
+            "wikipedia$martin_van_buren.txt$41446",
+        ],
+    ),
+    Case(
+        name="lexical_09",
+        inputs="Who believed the ghost of assassinated president William McKinley had directed him to kill Roosevelt?",
+        expected_output=[
+            "wikipedia$theodore_roosevelt.txt$69119",
+        ],
+    ),
+    Case(
+        name="lexical_10",
+        inputs="Which president had a brother Vivian and sister Mary Jane?",
+        expected_output=[
+            "miller_center$33_harry_s_truman_1_life-before-the-presidency.txt$0",
+            "miller_center$33_harry_s_truman_1_life-before-the-presidency.txt$2028",
+            "miller_center$33_harry_s_truman_6_family-life.txt$727",
+            "wikipedia$harry_s_truman.txt$35",
+            "wikipedia$harry_s_truman.txt$2451",
+            "wikipedia$harry_s_truman.txt$12339",
+        ],
+    ),
 ]
 
 
