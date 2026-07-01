@@ -98,18 +98,23 @@ def _grading_to_reason(grading: GradingOutput) -> EvaluationReason:
 
 
 DEFAULT_RELEVANCE_RUBRIC = (
-    "The response directly addresses the question that was asked."
+    "The response directly addresses the question that was asked. "
+    "If the response states that the available information is insufficient to answer "
+    "(e.g. it does not know, or the knowledge base does not contain the answer), that "
+    "counts as addressing the question."
 )
 DEFAULT_CORRECTNESS_RUBRIC = (
     "The response is factually correct and consistent with the expected key "
     "facts. Minor wording differences are acceptable."
 )
 DEFAULT_FAITHFULNESS_RUBRIC = (
-    "Every factual claim in the response is supported by the retrieved "
-    "documents. Claims that rely on general knowledge outside the retrieved "
-    "documents should fail."
+    "Every factual claim in the response must be supported by the retrieved documents. "
+    "Claims drawn from general knowledge or speculation beyond the retrieved documents "
+    "fail. If the response declines to answer because the retrieved documents do not support "
+    "an answer, pass when it makes no unsupported factual claims about the subject. "
+    "Meta-statements about insufficient evidence (e.g. 'the documents don't say') do "
+    "not need to be literally quoted from a chunk."
 )
-# TODO: Tune these to correctly score unanswerable questions (if necessary)
 
 
 @dataclass
