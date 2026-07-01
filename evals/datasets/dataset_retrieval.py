@@ -96,14 +96,16 @@ CASES_SEMANTIC = [
 CASES_LEXICAL = [
     Case(
         name="lexical_01",
-        inputs="Which president went to Plymouth elementary school?",
+        # Which president went to Plymouth elementary school?
+        inputs="president plymouth elementary school",
         expected_output=[
             "miller_center$30_calvin_coolidge_1_life-before-the-presidency.txt$392",
         ],
     ),
     Case(
         name="lexical_02",
-        inputs="Which president signed the Kellogg-Briand Pact?",
+        # Which president signed the Kellogg-Briand Pact?
+        inputs="kellogg-briand pact signed president",
         expected_output=[
             "miller_center$30_calvin_coolidge_4_foreign-affairs.txt$1062",
             "miller_center$30_calvin_coolidge_0_life-in-brief.txt$4045",
@@ -112,14 +114,16 @@ CASES_LEXICAL = [
     ),
     Case(
         name="lexical_03",
-        inputs="Who was almost forced to resign on September 11, 1841?",
+        # Who was almost forced to resign on September 11, 1841?
+        inputs="forced resign september 11 1841",
         expected_output=[
             "wikipedia$john_tyler.txt$38479",
         ],
     ),
     Case(
         name="lexical_04",
-        inputs="Which organization that opposed overseas territorial expansion of the United States did Mark Twain and Andrew Carnegie belong to?",
+        # Which organization that opposed overseas territorial expansion of the United States did Mark Twain and Andrew Carnegie belong to?
+        inputs="mark twain andrew carnegie organization opposed overseas territorial expansion",
         expected_output=[
             "miller_center$25_william_mckinley_4_foreign-affairs.txt$1042",
             "wikipedia$william_jennings_bryan.txt$18241",
@@ -127,21 +131,24 @@ CASES_LEXICAL = [
     ),
     Case(
         name="lexical_05",
-        inputs="Who signed the Surface Mining Control and Reclamation Act?",
+        # Who signed the Surface Mining Control and Reclamation Act?
+        inputs="surface mining control and reclamation act signed",
         expected_output=[
             "miller_center$39_jimmy_carter_3_domestic-affairs.txt$4322",
         ],
     ),
     Case(
         name="lexical_06",
-        inputs="Who did Jefferson write a letter to on September 23, 1800?",
+        # Who did Jefferson write a letter to on September 23, 1800?
+        inputs="jefferson letter september 23 1800",
         expected_output=[
             "wikipedia$thomas_jefferson.txt$97469",
         ],
     ),
     Case(
         name="lexical_07",
-        inputs="What did the Organization of Eastern Caribbean States ask Reagan to do?",
+        # What did the Organization of Eastern Caribbean States ask Reagan to do?
+        inputs="organization eastern caribbean states ask reagan",
         expected_output=[
             "miller_center$40_ronald_reagan_4_foreign-affairs.txt$15751",
             "miller_center$40_ronald_reagan_4_foreign-affairs.txt$16349",
@@ -149,21 +156,24 @@ CASES_LEXICAL = [
     ),
     Case(
         name="lexical_08",
-        inputs="Who wrote 'Maine and her soil, or BLOOD!'?",
+        # Who wrote 'Maine and her soil, or BLOOD!'?
+        inputs="maine and her soil or blood who wrote",
         expected_output=[
             "wikipedia$martin_van_buren.txt$41446",
         ],
     ),
     Case(
         name="lexical_09",
-        inputs="Who believed the ghost of assassinated president William McKinley had directed him to kill Roosevelt?",
+        # Who believed the ghost of assassinated president William McKinley had directed him to kill Roosevelt?
+        inputs="ghost william mckinley directed kill roosevelt",
         expected_output=[
             "wikipedia$theodore_roosevelt.txt$69119",
         ],
     ),
     Case(
         name="lexical_10",
-        inputs="Which president had a brother Vivian and sister Mary Jane?",
+        # Which president had a brother Vivian and sister Mary Jane?
+        inputs="president brother vivian sister mary jane",
         expected_output=[
             "miller_center$33_harry_s_truman_1_life-before-the-presidency.txt$0",
             "miller_center$33_harry_s_truman_1_life-before-the-presidency.txt$2028",
