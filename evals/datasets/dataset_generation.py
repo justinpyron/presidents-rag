@@ -104,8 +104,3 @@ generation_dataset = Dataset[str, GenerationResult](
         Faithfulness(model=JUDGE_MODEL, model_settings=JUDGE_MODEL_SETTINGS),
     ],
 )
-
-# TODO: Add efficiency metrics
-# TODO: Add an evaluator that measures the number of tool calls made
-# TODO: Add an evaluator that measures the number of tokens used / cost
-# TODO: Add an evaluator that measures latency
