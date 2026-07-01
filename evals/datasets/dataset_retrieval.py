@@ -7,35 +7,40 @@ from evals.evaluators import HitAtK, PrecisionAtK, RecallAtK
 CASES_SEMANTIC = [
     Case(
         name="semantic_01",
-        inputs="Who did Lincoln promote after learning he had no presidential ambitions?",
+        # Who did Lincoln promote after learning he had no presidential ambitions?
+        inputs="lincoln who promoted no presidential ambitions",
         expected_output=[
             "wikipedia$abraham_lincoln.txt$55825",
         ],
     ),
     Case(
         name="semantic_02",
-        inputs="How did Andrew Jackson's wife die?",
+        # How did Andrew Jackson's wife die?
+        inputs="andrew jackson wife death",
         expected_output=[
             "wikipedia$andrew_jackson.txt$28233",
         ],
     ),
     Case(
         name="semantic_03",
-        inputs="Which president was married to a woman whose death was potentially caused by rumors that she cheated on her previous husband?",
+        # Which president was married to a woman whose death was potentially caused by rumors that she cheated on her previous husband?
+        inputs="president wife died rumors cheating previous husband",
         expected_output=[
             "wikipedia$andrew_jackson.txt$28233",
         ],
     ),
     Case(
         name="semantic_04",
-        inputs="Who was almost ousted from the presidency in the middle of the nineteenth century due to his cabinet members all quitting in a staged, organized manner?",
+        # Who was almost ousted from the presidency in the middle of the nineteenth century due to his cabinet members all quitting in a staged, organized manner?
+        inputs="19th century president cabinet all resigned sequentially",
         expected_output=[
             "wikipedia$john_tyler.txt$38479",
         ],
     ),
     Case(
         name="semantic_05",
-        inputs="Who did not actively (but perhaps did passively) seek a 2nd term because he knew he had a terminal illness?",
+        # Who did not actively (but perhaps did passively) seek a 2nd term because he knew he had a terminal illness?
+        inputs="president terminal illness second term reelection",
         expected_output=[
             "miller_center$21_chester_a_arthur_5_life-after-the-presidency.txt$0",
             "miller_center$21_chester_a_arthur_2_campaigns-and-elections.txt$3476",
@@ -43,7 +48,8 @@ CASES_SEMANTIC = [
     ),
     Case(
         name="semantic_06",
-        inputs="Who sent a military force to China to save diplomats from a violent group of rebels who had killed Christians?",
+        # Who sent a military force to China to save diplomats from a violent group of rebels who had killed Christians?
+        inputs="military force china save diplomats rebels killed christians",
         expected_output=[
             "miller_center$25_william_mckinley_4_foreign-affairs.txt$8642",
             "miller_center$25_william_mckinley_0_life-in-brief.txt$3081",
@@ -52,14 +58,16 @@ CASES_SEMANTIC = [
     ),
     Case(
         name="semantic_07",
-        inputs="Which action taken by the USSR regarding a commercial jet from an east asian nation resulted in the deaths of nearly three hundred civilians?",
+        # Which action taken by the USSR regarding a commercial jet from an east asian nation resulted in the deaths of nearly three hundred civilians?
+        inputs="ussr commercial jet east asia 300 civilians killed",
         expected_output=[
             "miller_center$40_ronald_reagan_4_foreign-affairs.txt$11546",
         ],
     ),
     Case(
         name="semantic_08",
-        inputs="What was the act that Adams signed into law whose passage was facilitated by anti-French feelings after a foreign controversy?",
+        # What was the act that Adams signed into law whose passage was facilitated by anti-French feelings after a foreign controversy?
+        inputs="john adams act signed anti-french foreign controversy",
         expected_output=[
             "miller_center$02_john_adams_3_domestic-affairs.txt$505",
             "wikipedia$john_adams.txt$51038",
@@ -67,7 +75,8 @@ CASES_SEMANTIC = [
     ),
     Case(
         name="semantic_09",
-        inputs="Who advocated for the citizenship of native americans during his inaugural address?",
+        # Who advocated for the citizenship of native americans during his inaugural address?
+        inputs="president native american citizenship inaugural address",
         expected_output=[
             "miller_center$18_ulysses_s_grant_3_domestic-affairs.txt$8749",
             "wikipedia$ulysses_s_grant.txt$45911",
@@ -75,7 +84,8 @@ CASES_SEMANTIC = [
     ),
     Case(
         name="semantic_10",
-        inputs="Which president was accused of being elitist due to his son traveling to Europe and meeting with royalty?",
+        # Which president was accused of being elitist due to his son traveling to Europe and meeting with royalty?
+        inputs="president elitist son europe royalty",
         expected_output=[
             "miller_center$08_martin_van_buren_6_family-life.txt$747",
         ],
@@ -165,18 +175,10 @@ CASES_LEXICAL = [
     ),
 ]
 
-
-# A case for generation evals
-# Case(
-#     name="multihop_01",
-#     inputs="On what date was the president that Mark Twain helped via a generous book deal born?",
-#     expected_output="April 27, 1822",
-# ),
-
-
 retrieval_dataset = Dataset[str, list[str]](
     name="retrieval",
-    cases=CASES_SEMANTIC + CASES_LEXICAL,
+    # cases=CASES_SEMANTIC + CASES_LEXICAL,
+    cases=CASES_SEMANTIC,
     evaluators=[
         RecallAtK(k=10),
         PrecisionAtK(k=10),
