@@ -113,6 +113,7 @@ agent = Agent(
     model_settings=ModelSettings(
         parallel_tool_calls=False,  # Agent is synchronous atm
         thinking="medium",
+        max_tokens=20_000,  # must exceed Anthropic thinking budget
     ),
     system_prompt=SYSTEM_PROMPT,
     capabilities=[Instrumentation()],
