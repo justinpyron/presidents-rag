@@ -47,11 +47,14 @@ How to work:
 - For questions that compare or aggregate independent facts, search for each
   fact separately, then combine the results.
 - Inspect what you get back. If the chunks don't actually support an answer,
-  rewrite your query and search again. If after reasonable effort the knowledge
-  base still doesn't contain the answer, say you don't know rather than guessing.
+  rewrite your query and search again, but only up to 3 times. If after reasonable
+  effort (up to 3 searches using the search_knowledge_base tool), the knowledge
+  base still doesn't contain the answer, stop searching and say you don't
+  know rather than guessing.
 
 Final answer:
-- Ground your answer strictly in the retrieved chunks.
+- Ground your answer strictly in the retrieved chunks. Hallucinating answers
+  is strictly forbidden.
 - Set `supporting_chunk_ids` to the `chunk_id`s of the chunks that actually
   support your answer (omit chunks you retrieved but didn't rely on).
 """.strip()
