@@ -5,6 +5,7 @@ import sys
 
 import logfire
 from dotenv import load_dotenv
+from pydantic_ai import Agent
 
 from evals.datasets.dataset_generation import generation_dataset
 from evals.tasks import make_generation_task
@@ -41,6 +42,10 @@ def main() -> None:
         service_name="presidents-rag-evals",
         environment="dev",
     )
+    # Instrument every pydantic_ai Agent, including the internal judge agents
+    # used by pydantic_evals' LLM-as-a-judge helpers, so their token usage and
+    # cost show up in the Logfire UI.
+    Agent.instrument_all()
 
     args = parse_args()
     task = make_generation_task(
