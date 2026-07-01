@@ -239,8 +239,10 @@ retrieval_dataset = Dataset[str, list[str]](
     name="retrieval",
     cases=CASES_SEMANTIC + CASES_LEXICAL,
     evaluators=[
-        RecallAtK(k=10),
-        PrecisionAtK(k=10),
+        HitAtK(k=1),
         HitAtK(k=10),
+        HitAtK(k=20),
+        RecallAtK(k=10),
+        RecallAtK(k=20),
     ],
 )
