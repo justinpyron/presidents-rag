@@ -26,6 +26,11 @@ def parse_args() -> argparse.Namespace:
         dest="top_k_rerank",
         help="Number of chunks to keep after reranking.",
     )
+    parser.add_argument(
+        "--notes",
+        "-n",
+        help="Free-text notes about this eval run (stored in report metadata).",
+    )
     return parser.parse_args()
 
 
@@ -43,6 +48,7 @@ def main() -> None:
         metadata={
             "top_k_retrieval": args.top_k_retrieval,
             "top_k_rerank": args.top_k_rerank,
+            "notes": args.notes,
         },
     )
     report.print()
