@@ -104,8 +104,8 @@ DEFAULT_RELEVANCE_RUBRIC = (
     "counts as addressing the question."
 )
 DEFAULT_CORRECTNESS_RUBRIC = (
-    "The response is factually correct and consistent with the expected key "
-    "facts. Minor wording differences are acceptable."
+    "The response is correct because it is consistent with the expected answer. "
+    "Minor wording differences are acceptable."
 )
 DEFAULT_FAITHFULNESS_RUBRIC = (
     "Every factual claim in the response must be supported by the retrieved documents. "
