@@ -6,8 +6,7 @@ from pydantic_evals import Case, Dataset
 from evals.evaluators import Correctness, Faithfulness, Relevance
 from evals.schemas import GenerationResult
 
-# TODO: Use a stronger model for evaluation (e.g. gpt-5.4)
-JUDGE_MODEL = "openai:gpt-5.4-mini"
+JUDGE_MODEL = "openai:gpt-5.4"
 JUDGE_MODEL_SETTINGS = ModelSettings(temperature=0)
 
 CASES_SINGLEHOP = [
