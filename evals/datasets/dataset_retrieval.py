@@ -4,6 +4,18 @@ from pydantic_evals import Case, Dataset
 
 from evals.evaluators import HitAtK, PrecisionAtK, RecallAtK
 
+# Each case's `inputs` is a short, search-engine-style query: the string used for
+# both vector retrieval and reranking during evals. `metadata["full_Q"]` preserves
+# the original natural-language question that case was written to answer.
+#
+# We evaluate on rephrased queries rather than full questions because that mirrors
+# production: users ask questions in ordinary language, but the agent is instructed
+# to rewrite each question into one or more direct retrieval queries before searching
+# the knowledge base. Those rewritten queries—not the user's wording—are what drive
+# both the initial vector search and the reranking step. Short, keyword-focused
+# queries also tend to align better with how facts are expressed in the corpus,
+# improving the odds of surfacing the right chunks.
+
 CASES_SEMANTIC = [
     Case(
         name="semantic_01",
