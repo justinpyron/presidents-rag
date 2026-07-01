@@ -110,7 +110,10 @@ agent = Agent(
     model=MODEL,
     deps_type=AgentDeps,
     output_type=AgentResponse,
-    model_settings=ModelSettings(parallel_tool_calls=False),
+    model_settings=ModelSettings(
+        parallel_tool_calls=False,  # Agent is synchronous atm
+        thinking="low",
+    ),
     system_prompt=SYSTEM_PROMPT,
     capabilities=[Instrumentation()],
 )
