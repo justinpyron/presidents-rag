@@ -24,24 +24,24 @@ from evals.schemas import GenerationResult
 
 
 def _hits_at_k(
-    ranked_chunk_ids: list[int],
-    relevant_chunk_ids: list[int] | None,
+    ranked_chunk_keys: list[str],
+    relevant_chunk_keys: list[str] | None,
     k: int,
 ) -> tuple[int, int]:
     """Return the number of relevant hits and the size of the gold set."""
-    relevant = set(relevant_chunk_ids or [])
-    top_k_ids = set(ranked_chunk_ids[:k])
-    return len(relevant & top_k_ids), len(relevant)
+    relevant = set(relevant_chunk_keys or [])
+    top_k_keys = set(ranked_chunk_keys[:k])
+    return len(relevant & top_k_keys), len(relevant)
 
 
 @dataclass
-class RecallAtK(Evaluator[str, list[int]]):
+class RecallAtK(Evaluator[str, list[str]]):
     k: int
 
     def get_default_evaluation_name(self) -> str:
         return f"recall@{self.k}"
 
-    def evaluate(self, ctx: EvaluatorContext[str, list[int]]) -> float:
+    def evaluate(self, ctx: EvaluatorContext[str, list[str]]) -> float:
         hits, num_relevant = _hits_at_k(
             ctx.output, ctx.expected_output, self.k
         )
@@ -51,25 +51,25 @@ class RecallAtK(Evaluator[str, list[int]]):
 
 
 @dataclass
-class PrecisionAtK(Evaluator[str, list[int]]):
+class PrecisionAtK(Evaluator[str, list[str]]):
     k: int
 
     def get_default_evaluation_name(self) -> str:
         return f"precision@{self.k}"
 
-    def evaluate(self, ctx: EvaluatorContext[str, list[int]]) -> float:
+    def evaluate(self, ctx: EvaluatorContext[str, list[str]]) -> float:
         hits, _ = _hits_at_k(ctx.output, ctx.expected_output, self.k)
         return hits / self.k
 
 
 @dataclass
-class HitAtK(Evaluator[str, list[int]]):
+class HitAtK(Evaluator[str, list[str]]):
     k: int
 
     def get_default_evaluation_name(self) -> str:
         return f"hit@{self.k}"
 
-    def evaluate(self, ctx: EvaluatorContext[str, list[int]]) -> bool:
+    def evaluate(self, ctx: EvaluatorContext[str, list[str]]) -> bool:
         hits, num_relevant = _hits_at_k(
             ctx.output, ctx.expected_output, self.k
         )
@@ -98,16 +98,22 @@ def _grading_to_reason(grading: GradingOutput) -> EvaluationReason:
 
 
 DEFAULT_RELEVANCE_RUBRIC = (
-    "The response directly addresses the question that was asked."
+    "The response directly addresses the question that was asked. "
+    "If the response states that the available information is insufficient to answer "
+    "(e.g. it does not know, or the knowledge base does not contain the answer), that "
+    "counts as addressing the question."
 )
 DEFAULT_CORRECTNESS_RUBRIC = (
-    "The response is factually correct and consistent with the expected key "
-    "facts. Minor wording differences are acceptable."
+    "The response is correct because it is consistent with the expected answer. "
+    "Minor wording differences are acceptable."
 )
 DEFAULT_FAITHFULNESS_RUBRIC = (
-    "Every factual claim in the response is supported by the retrieved "
-    "documents. Claims that rely on general knowledge outside the retrieved "
-    "documents should fail."
+    "Every factual claim in the response must be supported by the retrieved documents. "
+    "Claims drawn from general knowledge or speculation beyond the retrieved documents "
+    "fail. If the response declines to answer because the retrieved documents do not support "
+    "an answer, pass when it makes no unsupported factual claims about the subject. "
+    "Meta-statements about insufficient evidence (e.g. 'the documents don't say') do "
+    "not need to be literally quoted from a chunk."
 )
 
 

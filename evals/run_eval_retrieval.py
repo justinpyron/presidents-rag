@@ -5,6 +5,7 @@ import sys
 
 import logfire
 from dotenv import load_dotenv
+from pydantic_ai import Agent
 
 from evals.datasets.dataset_retrieval import retrieval_dataset
 from evals.tasks import make_retrieval_task
@@ -26,6 +27,11 @@ def parse_args() -> argparse.Namespace:
         dest="top_k_rerank",
         help="Number of chunks to keep after reranking.",
     )
+    parser.add_argument(
+        "--notes",
+        "-n",
+        help="Free-text notes about this eval run (stored in report metadata).",
+    )
     return parser.parse_args()
 
 
@@ -35,6 +41,10 @@ def main() -> None:
         service_name="presidents-rag-evals",
         environment="dev",
     )
+    # Instrument every pydantic_ai Agent, including the internal judge agents
+    # used by pydantic_evals' LLM-as-a-judge helpers, so their token usage and
+    # cost show up in the Logfire UI.
+    Agent.instrument_all()
 
     args = parse_args()
     task = make_retrieval_task(args.top_k_retrieval, args.top_k_rerank)
@@ -43,6 +53,7 @@ def main() -> None:
         metadata={
             "top_k_retrieval": args.top_k_retrieval,
             "top_k_rerank": args.top_k_rerank,
+            "notes": args.notes,
         },
     )
     report.print()
