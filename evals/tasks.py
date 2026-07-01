@@ -31,6 +31,7 @@ def make_retrieval_task(
 
 
 def make_generation_task(
+    model: str,
     top_k_retrieval: int,
     top_k_rerank: int,
 ) -> Callable[[str], GenerationResult]:
@@ -46,6 +47,7 @@ def make_generation_task(
         result = agent.run_sync(
             query,
             deps=deps,
+            model=model,
             usage_limits=UsageLimits(request_limit=REQUEST_LIMIT),
         )
         answer, cited_chunks = parse_agent_run(result, deps)
