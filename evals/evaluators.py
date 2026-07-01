@@ -109,6 +109,7 @@ DEFAULT_FAITHFULNESS_RUBRIC = (
     "documents. Claims that rely on general knowledge outside the retrieved "
     "documents should fail."
 )
+# TODO: Tune these to correctly score unanswerable questions (if necessary)
 
 
 @dataclass
