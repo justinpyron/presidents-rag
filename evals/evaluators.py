@@ -104,10 +104,15 @@ DEFAULT_RELEVANCE_RUBRIC = (
     "(e.g. it does not know, or the knowledge base does not contain the answer), that "
     "counts as addressing the question."
 )
-DEFAULT_CORRECTNESS_RUBRIC = (
-    "The response is correct because it is consistent with the expected answer. "
-    "Minor wording differences are acceptable."
-)
+DEFAULT_CORRECTNESS_RUBRIC = textwrap.dedent(
+    """
+    The response is correct if it asserts the same answer as the expected
+    answer; wording may differ. Extra detail is fine unless it's wrong or
+    contradicts the expected answer, and omitting incidental detail is fine
+    as long as the facts essential to the question are present. If the
+    expected answer declines to answer, only a similar decline is correct.
+    """
+).strip()
 DEFAULT_FAITHFULNESS_RUBRIC = textwrap.dedent(
     """
     Judge grounding, not correctness. A claim is faithful if the retrieved
