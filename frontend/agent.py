@@ -29,8 +29,8 @@ from backend.schemas import RetrievedChunk
 from frontend.client import RAGClient
 
 DEFAULT_MODEL = "openai:gpt-5.4-mini"
-DEFAULT_TOP_K_RETRIEVAL = 50
-DEFAULT_TOP_K_RERANK = 10
+DEFAULT_TOP_K_RETRIEVAL = 200
+DEFAULT_TOP_K_RERANK = 20
 # soft budget: how many searches the prompt allows
 DEFAULT_MAX_SEARCHES = 5
 # hard backstop sits this many requests above the soft budget
