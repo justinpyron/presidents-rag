@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 from pydantic_ai.usage import UsageLimits
 
 from backend.schemas import RetrievedChunk
-from frontend.agent import REQUEST_LIMIT, AgentDeps, agent, parse_agent_run
+from frontend.agent import AgentDeps, agent, parse_agent_run, request_limit_for
 from frontend.client import RAGClient
 from frontend.dash_app.config import (
     ABSTAIN_TEXT,
@@ -165,7 +165,9 @@ class ChatStore:
                 deps=chat.deps,
                 message_history=chat.messages,
                 model=model_id,
-                usage_limits=UsageLimits(request_limit=REQUEST_LIMIT),
+                usage_limits=UsageLimits(
+                    request_limit=request_limit_for(chat.deps.max_searches)
+                ),
             )
             chat.messages = result.all_messages()
             answer, chunks = parse_agent_run(result, chat.deps)

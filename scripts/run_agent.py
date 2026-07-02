@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from pydantic_ai.usage import UsageLimits
 
 from backend.schemas import RetrievedChunk
-from frontend.agent import REQUEST_LIMIT, AgentDeps, agent, parse_agent_run
+from frontend.agent import AgentDeps, agent, parse_agent_run, request_limit_for
 from frontend.client import RAGClient
 
 load_dotenv()
@@ -63,7 +63,9 @@ def main() -> None:
             query,
             deps=deps,
             message_history=messages,
-            usage_limits=UsageLimits(request_limit=REQUEST_LIMIT),
+            usage_limits=UsageLimits(
+                request_limit=request_limit_for(deps.max_searches)
+            ),
         )
         messages = result.all_messages()
         answer, chunks = parse_agent_run(result, deps)
