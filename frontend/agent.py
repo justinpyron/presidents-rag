@@ -28,10 +28,10 @@ from pydantic_ai.usage import UsageLimits
 from backend.schemas import RetrievedChunk
 from frontend.client import RAGClient
 
-MODEL = "openai:gpt-5.4-mini"
+DEFAULT_MODEL = "openai:gpt-5.4-mini"
 REQUEST_LIMIT = 8
-TOP_K_RETRIEVAL = 50
-TOP_K_RERANK = 10
+DEFAULT_TOP_K_RETRIEVAL = 50
+DEFAULT_TOP_K_RERANK = 10
 
 SYSTEM_PROMPT = """
 You are a research assistant answering questions about US Presidents and
@@ -104,13 +104,13 @@ class AgentDeps:
 
     client: RAGClient
     sources: list[str] | None = None
-    top_k_retrieval: int = TOP_K_RETRIEVAL
-    top_k_rerank: int = TOP_K_RERANK
+    top_k_retrieval: int = DEFAULT_TOP_K_RETRIEVAL
+    top_k_rerank: int = DEFAULT_TOP_K_RERANK
     seen: dict[int, RetrievedChunk] = field(default_factory=dict)
 
 
 agent = Agent(
-    model=MODEL,
+    model=DEFAULT_MODEL,
     deps_type=AgentDeps,
     output_type=AgentResponse,
     model_settings=ModelSettings(
