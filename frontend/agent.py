@@ -37,7 +37,7 @@ REQUEST_LIMIT_BUFFER = (
 )
 
 
-def request_limit_for(max_searches: int) -> int:
+def get_request_limit(max_searches: int) -> int:
     """Hard backstop for ``agent.run``'s ``usage_limits``, derived from the soft budget.
 
     ``UsageLimits.request_limit`` caps *model requests*, not tool calls — a run
@@ -127,7 +127,7 @@ class AgentDeps:
     ``sources`` is the per-turn retrieval policy (set before each run).
     ``max_searches`` is the soft search budget the system prompt is rendered
     with; the caller derives the hard ``usage_limits`` backstop from the same
-    value via ``request_limit_for`` so the two can't drift.
+    value via ``get_request_limit`` so the two can't drift.
     ``seen`` accumulates every chunk returned by the tool across the whole
     conversation, keyed by ``chunk_id`` so repeats dedupe naturally.
     """

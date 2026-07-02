@@ -6,7 +6,7 @@ from pydantic_ai.usage import UsageLimits
 
 from backend.schemas import chunk_key
 from evals.schemas import GenerationResult
-from frontend.agent import AgentDeps, agent, parse_agent_run, request_limit_for
+from frontend.agent import AgentDeps, agent, get_request_limit, parse_agent_run
 from frontend.client import RAGClient
 
 
@@ -49,7 +49,7 @@ def make_generation_task(
             deps=deps,
             model=model,
             usage_limits=UsageLimits(
-                request_limit=request_limit_for(deps.max_searches)
+                request_limit=get_request_limit(deps.max_searches)
             ),
         )
         answer, cited_chunks = parse_agent_run(result, deps)
