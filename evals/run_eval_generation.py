@@ -37,7 +37,7 @@ def parse_args() -> argparse.Namespace:
         "--max-concurrency",
         "-c",
         type=int,
-        default=10,
+        default=50,
         dest="max_concurrency",
         help="Maximum number of eval cases to run concurrently.",
     )
