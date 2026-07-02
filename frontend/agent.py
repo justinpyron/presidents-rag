@@ -34,7 +34,7 @@ DEFAULT_TOP_K_RERANK = 20
 # soft budget: how many searches the prompt allows
 DEFAULT_MAX_SEARCHES = 5
 # hard backstop sits this many requests above the soft budget
-REQUEST_LIMIT_BUFFER = 3
+REQUEST_LIMIT_BUFFER = 2
 
 
 def get_request_limit(max_searches: int) -> int:
