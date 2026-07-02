@@ -119,6 +119,8 @@ DEFAULT_FAITHFULNESS_RUBRIC = (
 
 @dataclass
 class Relevance(Evaluator[str, GenerationResult]):
+    """On-topic? Does the answer address the question that was asked?"""
+
     rubric: str = DEFAULT_RELEVANCE_RUBRIC
     model: models.Model | models.KnownModelName | str | None = None
     model_settings: ModelSettings | None = None
@@ -138,6 +140,8 @@ class Relevance(Evaluator[str, GenerationResult]):
 
 @dataclass
 class Correctness(Evaluator[str, GenerationResult]):
+    """Right vs. gold? Is the answer consistent with the expected answer?"""
+
     rubric: str = DEFAULT_CORRECTNESS_RUBRIC
     model: models.Model | models.KnownModelName | str | None = None
     model_settings: ModelSettings | None = None
@@ -163,6 +167,8 @@ class Correctness(Evaluator[str, GenerationResult]):
 
 @dataclass
 class Faithfulness(Evaluator[str, GenerationResult]):
+    """Grounded in retrieved context? Is every claim supported by the docs?"""
+
     rubric: str = DEFAULT_FAITHFULNESS_RUBRIC
     model: models.Model | models.KnownModelName | str | None = None
     model_settings: ModelSettings | None = field(default=None)
