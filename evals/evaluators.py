@@ -98,12 +98,15 @@ def _grading_to_reason(grading: GradingOutput) -> EvaluationReason:
     return EvaluationReason(value=grading.pass_, reason=grading.reason)
 
 
-DEFAULT_RELEVANCE_RUBRIC = (
-    "The response directly addresses the question that was asked. "
-    "If the response states that the available information is insufficient to answer "
-    "(e.g. it does not know, or the knowledge base does not contain the answer), that "
-    "counts as addressing the question."
-)
+DEFAULT_RELEVANCE_RUBRIC = textwrap.dedent(
+    """
+    The response is relevant if it addresses the question that was asked.
+    Correctness and completeness don't matter here — a wrong but on-topic
+    answer still passes. Fail if it's off-topic, evasive, or answers a
+    different question. Stating that the answer is unknown or unsupported by
+    the available information counts as addressing the question.
+    """
+).strip()
 DEFAULT_CORRECTNESS_RUBRIC = textwrap.dedent(
     """
     The response is correct if it asserts the same answer as the expected
