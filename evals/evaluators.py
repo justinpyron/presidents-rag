@@ -1,5 +1,6 @@
 """Evaluators for retrieval and generation experiments."""
 
+import textwrap
 from dataclasses import dataclass, field
 
 from pydantic_ai import models
@@ -107,14 +108,18 @@ DEFAULT_CORRECTNESS_RUBRIC = (
     "The response is correct because it is consistent with the expected answer. "
     "Minor wording differences are acceptable."
 )
-DEFAULT_FAITHFULNESS_RUBRIC = (
-    "Every factual claim in the response must be supported by the retrieved documents. "
-    "Claims drawn from general knowledge or speculation beyond the retrieved documents "
-    "fail. If the response declines to answer because the retrieved documents do not support "
-    "an answer, pass when it makes no unsupported factual claims about the subject. "
-    "Meta-statements about insufficient evidence (e.g. 'the documents don't say') do "
-    "not need to be literally quoted from a chunk."
-)
+DEFAULT_FAITHFULNESS_RUBRIC = textwrap.dedent(
+    """
+    Judge grounding, not correctness. A claim is faithful if the retrieved
+    documents — alone or combined — state or entail it. Verbatim restatement
+    isn't required. Fail only when a claim contradicts the documents or has
+    no support in them, including superlatives or comparisons the documents
+    can't establish. Do not credit facts the model knows but the documents
+    don't contain. A response that declines to answer (e.g. due to a claim
+    of a lack of supporting evidence) passes, provided it makes no unsupported
+    claims.
+    """
+).strip()
 
 
 @dataclass
