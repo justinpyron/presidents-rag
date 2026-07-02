@@ -33,6 +33,14 @@ def parse_args() -> argparse.Namespace:
         dest="top_k_rerank",
         help="Number of chunks to keep after reranking.",
     )
+    parser.add_argument(
+        "--max-concurrency",
+        "-c",
+        type=int,
+        default=10,
+        dest="max_concurrency",
+        help="Maximum number of eval cases to run concurrently.",
+    )
     return parser.parse_args()
 
 
@@ -55,6 +63,7 @@ def main() -> None:
     )
     report = generation_dataset.evaluate_sync(
         task,
+        max_concurrency=args.max_concurrency,
         metadata={
             "model": args.model,
             "top_k_retrieval": args.top_k_retrieval,
